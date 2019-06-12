@@ -1,9 +1,16 @@
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
-Testing
 Makefile
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+Debug
+.vs
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+.idea/
+cmake-build-debug/
