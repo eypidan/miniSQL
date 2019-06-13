@@ -1,6 +1,7 @@
-# miniSQL
+## BufferManager 
 
-This is the project of miniSQL. 
+This is the BufferManager part of miniSQL. 
+
 
 #### Division of Labor
 - Wang Interpreter
