@@ -52,7 +52,7 @@ public:
     BufferManager();
     ~BufferManager();
 
-    bool CreateStruct(BlockNode Newtable);             //return true => create table sucessfully, return false => table has existed.
+    bool CreateStruct(BlockNode *Newtable);             //return true => create table sucessfully, return false => table has existed.
     BlockNode *GetStruct(string TableName);
     FileNode *GetFile(const string TableName);             //get this TableName's FileNode
     void DeleteFile(const string TableName);               //delte this table
