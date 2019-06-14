@@ -1,6 +1,10 @@
 #pragma once
+<<<<<<< HEAD
 
 #include "MetaData.h"
+=======
+#include <MetaData.h>
+>>>>>>> dd73bdcee87841e3db7175448dd3a0fba3a16d0c
 #include <string>
 
 namespace RM {

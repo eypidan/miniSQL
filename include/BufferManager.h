@@ -24,35 +24,21 @@
 #include <string>
 
 using namespace std;
-enum class BlockType {
-    RecordBlock,
-    IndexBlock,
-    RecordCatalogBlock,
-    IndexCatalogBlock
-};
 
-class BlockNode {
-private:
+struct BlockNode {
     char __Data[BlOCKSIZE];
-    bool __lock;                  //whether this block is locked
     bool __dirty;                 //When the block.dirty == true, this block need to write back to disk
     BlockNode *NextBlockNode;
     BlockNode *PreBlockNode;
     string FileName;              //Which file this block belongs to
     friend class BufferManager;
-
-
 };
 
-class FileNode {
-private:
+struct FileNode {
     string FileName;              // A table maps a File i.e. BookTable -> Book.db
     BlockNode *HeaderBlockNode;
-    bool lock;                    //whether this file is locked
     FileNode *NextFile;
     FileNode *PreFile;
-
-    friend class BufferManager;
 };
 
 
@@ -62,14 +48,11 @@ private:
 public:
     BufferManager();
     ~BufferManager();
-
+    void *CreateTable();
     FileNode *GetTable(const string TableName);             //get this TableName's FileNode
     void DeleteTable(const string TableName);               //delte this table
-    void LockFileNode(FileNode *File, bool lockstate);       //set File's lock state to lock or unlock
-    void LockBlockNode(BlockNode *Block, bool lockstate);    //set Block's lock state to lock or unlock
     void DirtyBlock(BlockNode *Block, bool dirtystate);      //set Block's dirty state to dirty or clean
     const int GetBlockSize();
-
     BlockNode *Get_x_Block(FileNode *File, int index);       //get index BlockNode of a FileNode
 };
 
