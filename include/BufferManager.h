@@ -28,7 +28,7 @@
 using namespace std;
 
 struct BlockNode {
-    char Data[BlOCKSIZE];
+    char *Data;
     bool dirty;                 //When the block.dirty == true, this block need to write back to disk
     int offset;                 //offset in FileNode
     string FileName;              //Which file this block belongs to    
@@ -39,12 +39,15 @@ class FileNode {
     bool pin;                     // pin a node
     list<BlockNode *> accessQueue;
     list<BlockNode *> cacheQueue;
+
+    friend class BufferManager;
 public:
     BlockNode *operator[](int index); //get index's block
     void synchronize();
+
 };
 
-
+//BufferManager contains operation about `Memory` and `Disk`
 class BufferManager {
 private:
     vector<FileNode> FileService;
@@ -54,8 +57,9 @@ public:
 
     bool CreateStruct(BlockNode *Newtable);             //return true => create table sucessfully, return false => table has existed.
     BlockNode *GetStruct(string TableName);
-    FileNode *GetFile(const string TableName);             //get this TableName's FileNode
-    void DeleteFile(const string TableName);               //delte this table
+
+    FileNode *GetFile(const string TableName);          //get this TableName's FileNode
+    void DeleteFile(const string TableName);            //delte this table
 };
 
 
