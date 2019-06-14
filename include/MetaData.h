@@ -102,7 +102,7 @@ struct Table {
 	std::string &primaryKey;
 	std::vector<Property> &properties;
 	Table(std::string &tableName, std::string &primaryKey, std::vector<Property> &properties)
-		: tableName(tableName), primaryKey(primaryKey), properties(properties) {}
+			: tableName(tableName), primaryKey(primaryKey), properties(properties) {}
 };
 
 struct Index {
