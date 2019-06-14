@@ -2,7 +2,6 @@
 
 This is the BufferManager part of miniSQL. 
 
-
 #### Division of Labor
 - Wang Interpreter
 - Chen Api + Index Manager

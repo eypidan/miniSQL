@@ -3,7 +3,7 @@
 namespace IM {
 
 	bool hasIndex(std::string & indexName) {
-
+		return false;
 	}
 
 	void createIndex(Index & index) {
