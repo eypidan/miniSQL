@@ -3,7 +3,6 @@
 //
 #include "../include/BufferManager.h"
 
-
-int main() {
-    std::cout << "hello cat~";
+bool BufferManager::CreateStruct(BlockNode Newtable){
+    
 }

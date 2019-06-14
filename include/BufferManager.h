@@ -22,37 +22,40 @@
 #define BLOCKSIZE 200          //define the max number of block is 200
 #include <iostream>
 #include <string>
+#include <list>
 #include "MetaData.h"
 
 using namespace std;
 
-struct Block {
+struct BlockNode {
     char Data[BlOCKSIZE];
     bool dirty;                 //When the block.dirty == true, this block need to write back to disk
-    int offset;
+    int offset;                 //offset in FileNode
     string FileName;              //Which file this block belongs to    
 };
-typedef struct Block BlockNode;
-struct FileNode {
+
+class FileNode {
     string FileName;              // A table maps a File i.e. BookTable -> Book.db
-    vector<BlockNode> BN;
-    FileNode *NextFile;
-    FileNode *PreFile;
+    bool pin;                     // pin a node
+    list<BlockNode *> accessQueue;
+    list<BlockNode *> cacheQueue;
+public:
+    BlockNode *operator[](int index); //get index's block
+    void synchronize();
 };
 
 
 class BufferManager {
 private:
-    FileNode *HeaderFile;
+    vector<FileNode> FileService;
 public:
     BufferManager();
     ~BufferManager();
 
-    bool CreateStruct(string TableName);//return true => create table sucessfully, return false => table has existed.
-
+    bool CreateStruct(BlockNode Newtable);             //return true => create table sucessfully, return false => table has existed.
+    BlockNode *GetStruct(string TableName);
     FileNode *GetFile(const string TableName);             //get this TableName's FileNode
     void DeleteFile(const string TableName);               //delte this table
-
 };
 
 
