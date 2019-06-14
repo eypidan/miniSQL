@@ -1,16 +1,43 @@
 #include "IndexManager.h"
 
-namespace IM {
+IndexManager::IndexManager(Index& index) {
 
-	bool hasIndex(std::string & indexName) {
-		return false;
-	}
+}
 
-	void createIndex(Index & index) {
+IndexManager::~IndexManager() {
 
-	}
+}
 
-	void dropIndex(Index & index) {
+void IndexManager::insertEntry(Value* newValue) {
 
-	}
+}
+
+void IndexManager::deleteEntry(Value* value) {
+
+}
+
+BlockNode* IndexManager::findBlock(Value* value) {
+
+}
+
+std::list<BlockNode*> IndexManager::findRangeBlock(Value* minValue, Value* maxValue) {
+
+}
+
+std::shared_ptr<Index> IndexManager::findIndex(
+	std::string& tableName, std::string& propertyName) {
+
+}
+
+std::shared_ptr<Index> IndexManager::findIndexByName(
+	std::string& indexName) {
+
+}
+
+void IndexManager::createNewIndex(Index& index) {
+
+}
+
+void IndexManager::dropIndex(Index& index) {
+
 }
