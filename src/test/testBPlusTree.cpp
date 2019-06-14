@@ -1,8 +1,10 @@
 #include "BPlusTree.h"
 #include <cstdlib>
-#define SIZE 15
+#include <ctime>
+#define SIZE 1000
+#define M 10
 
-INode<float, 5> nodes[SIZE];
+INode<float, M> nodes[SIZE];
 float elements[SIZE];
 int top = 2;
 
@@ -19,6 +21,7 @@ void shuffle() {
 }
 
 int main() {
+	srand(time(NULL));
 	for (int i = 0; i < SIZE; i++) {
 		nodes[i].id = i;
 		nodes[i].contentSize = 0;
@@ -26,7 +29,7 @@ int main() {
 		elements[i] = i;
 	}
 	
-	BPlusTree<float, 5> tree(&nodes[1], [](int id) {
+	BPlusTree<float, M> tree(&nodes[1], [](int id) {
 		return &nodes[id];
 	}, [](auto node) {
 		nodes[node->id] = *node;
@@ -64,6 +67,23 @@ int main() {
 		current = tree.next(current);
 	} while (current != max->node);
 	std::cout << std::endl;
+	tree.printTree();
+	// test delete
+	shuffle();
+	int i, j;
+	for (i = 0; i < SIZE / 2; i++) {
+		tree.del(elements[i]);
+	}
+	tree.printTree();
+	for (j = i + 1; j < SIZE; j++) {
+		auto re = tree.find(elements[j]);
+		if (re->node->value[re->position] != elements[j]) {
+			std::cout << "error!!!: " << j << std::endl;
+		}
+	}
+	for (; i < SIZE - 1; i++) {
+		tree.del(elements[i]);
+	}
 	tree.printTree();
 	return 0;
 }
