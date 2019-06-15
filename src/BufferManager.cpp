@@ -8,34 +8,51 @@
  *  RecordManager  -> .db file
  */
 
+BufferManager::BufferManager() {};
 
+BufferManager::~BufferManager() {};
 //================ Struct part funcion===================
 //struct Function interface with CatalogManager
 bool BufferManager::CreateStruct(BlockNode *Newtable) {
-    FILE *fpRead = fopen((Newtable->FileName + ".struct").c_str(), "r");
-    if (fpRead == NULL) {
-        FILE *fp = fopen((Newtable->FileName + ".struct").c_str(), "w");
-        fputs(Newtable->Data, fp);
-    } else {
-        fclose(fpRead);
+
+    if (access((Newtable->FileName + ".struct").c_str(), F_OK) != -1) {
         return false; // this file has been existed.
+    } else {
+        FILE *fp = fopen((Newtable->FileName + ".struct").c_str(), "w");
+        for (int i = 0; i < 4096; i++)
+            fputc(Newtable->Data[i], fp);
+
+        this->StructCacheQueue.emplace_back(Newtable);
+        fclose(fp);
     }
+
 }
 
 BlockNode *BufferManager::GetStruct(string TableName) {
+    auto iter = this->StructCacheQueue.begin();   //a struct like LRU to read struct in memory
+    while (iter != this->StructCacheQueue.end()) {
+        auto item = *iter;
+        if (TableName == item->FileName)
+            return item;
+        iter++;
+    }
+
+    //can't find this table in memory, than read from disk
     FILE *fpRead = fopen((TableName + ".struct").c_str(), "r");
-    BlockNode *BN = new(BlockNode);
-    size_t nread;
+    auto *BN = new(BlockNode);
+
 
     BN->FileName = TableName;
     BN->dirty = false;
     BN->offset = 0;
-
+    BN->Data = new char[BlOCKSIZE];
     if (fpRead) {
-        while ((nread = fread(BN->Data, 1, sizeof(BN->Data), fpRead)) > 0)
+        while ((fread(BN->Data, 1, BlOCKSIZE, fpRead)) > 0)
             if (ferror(fpRead)) { ;/* deal with error */
             }
         fclose(fpRead);
+        this->StructCacheQueue.emplace_back(BN);
+        return BN;
     } else {
         throw logic_error("Can't find this file!");
     }
@@ -44,7 +61,7 @@ BlockNode *BufferManager::GetStruct(string TableName) {
 //================ Content part funcion===================
 //Content Function interface with RecordManager
 FileNode *BufferManager::GetFile(const string TableName) {
-    FileNode *FN = new(FileNode);
+    auto *FN = new(FileNode);
     FN->FileName = TableName;
     FN->pin = false;
     return FN;

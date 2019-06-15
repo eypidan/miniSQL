@@ -18,11 +18,11 @@
 #define BUFFERMANAGER_BUFFERMANAGER_H
 
 #define BlOCKSIZE 4096         //define BlOCKSIZE 4096 bit
-#define TABLESIZE 100          //define the max number of table(<=> file in disk) is 100
-#define BLOCKSIZE 200          //define the max number of block is 200
+#define CACHESIZE 20000          //the MAX number of block in cache
 #include <iostream>
 #include <string>
 #include <list>
+#include <unistd.h>
 #include "MetaData.h"
 
 using namespace std;
@@ -38,7 +38,7 @@ class FileNode {
     string FileName;              // A table maps a File i.e. BookTable -> Book.db
     bool pin;                     // pin a node
     list<BlockNode *> accessQueue;
-    list<BlockNode *> cacheQueue;
+    list<BlockNode *> cacheQueue;  // store recently used block
 
     friend class BufferManager;
 public:
@@ -51,6 +51,7 @@ public:
 class BufferManager {
 private:
     vector<FileNode> FileService;
+    list<BlockNode *> StructCacheQueue;  // store recently used struct
 public:
     BufferManager();
     ~BufferManager();
