@@ -30,7 +30,15 @@ bool BufferManager::CreateStruct(BlockNode *Newtable) {
         this->StructCacheQueue.emplace_back(Newtable);
         fclose(fp);
     }
+}
 
+bool BufferManager::JudgeStructExistence(string TableName) {
+
+    if (access((TableName + ".struct").c_str(), F_OK) != -1) {
+        return true; // this file has been existed.
+    } else {
+        return false;
+    }
 }
 
 BlockNode *BufferManager::GetStruct(string TableName) {

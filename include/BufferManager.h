@@ -56,7 +56,7 @@ public:
     BufferManager() = default;
     ~BufferManager();
 
-    bool JudgeStructExistence(string TableName);
+    bool JudgeStructExistence(string TableName);    //return true => file exist
     bool CreateStruct(BlockNode *Newtable);             //return true => create table sucessfully, return false => table has existed.
     BlockNode *GetStruct(string TableName);
 
