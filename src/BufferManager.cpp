@@ -1,4 +1,5 @@
-//
+
+\//
 // Created by eypidan on 6/4/2019.
 //
 #include "../include/BufferManager.h"
@@ -8,9 +9,13 @@
  *  RecordManager  -> .db file
  */
 
-BufferManager::BufferManager() {};
 
-BufferManager::~BufferManager() {};
+
+BufferManager::~BufferManager() {
+    for (auto &fp : files) {
+        fclose(fp);
+    }
+};
 //================ Struct part funcion===================
 //struct Function interface with CatalogManager
 bool BufferManager::CreateStruct(BlockNode *Newtable) {

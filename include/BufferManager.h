@@ -50,10 +50,10 @@ public:
 //BufferManager contains operation about `Memory` and `Disk`
 class BufferManager {
 private:
-    vector<FileNode> FileService;
+    vector<FILE *> files;
     list<BlockNode *> StructCacheQueue;  // store recently used struct
 public:
-    BufferManager();
+    BufferManager() = default;
     ~BufferManager();
 
     bool CreateStruct(BlockNode *Newtable);             //return true => create table sucessfully, return false => table has existed.
