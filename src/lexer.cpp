@@ -10,8 +10,11 @@ namespace Interpreter {
 
 	std::vector<Token> Lexer::tokenize()
 	{
-		return std::vector<Token>();
+		std::vector<Token> tokens;
+		tokens.push_back(getNextToken());
+		return tokens;
 	}
+
 
 	bool Lexer::getNextLine()
 	{
@@ -27,8 +30,13 @@ namespace Interpreter {
 
 	Token Lexer::getNextToken()
 	{
+		// read past and ignore any whitespace characters
+
+
+		// Create a new token with line and column index
 		return Token();
 	}
+
 
 
 }

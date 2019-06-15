@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <stdlib.h>
 
 namespace Interpreter {
 
@@ -70,6 +71,7 @@ public:
 	Token(const int intv, const int ln, const int cn);
 	Token(float fv, const int ln, const int cn);
 
+	friend void printToken(Token token);
 private:
 	TokenType type;
 	TokenValue value;
