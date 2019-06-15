@@ -47,6 +47,7 @@ class FileNode {
 
     char *readBlock(int offset);
 
+    void cleanup();
     void writeBack(int offset, char *Data);
     friend class BufferManager;
 public:

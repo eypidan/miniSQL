@@ -198,7 +198,7 @@ BlockNode *FileNode::operator[](int index) { //Use LRU to store recently used bl
         iter++;
     }
     if (blockNum >= CACHESIZE) {
-        // cleanup();
+        cleanup();
     }
     blockNum++;
     auto *item = new BlockNode;
@@ -232,5 +232,30 @@ void FileNode::synchronize() {
             this->writeBack(item->offset, item->Data);
         }
         iter++;
+    }
+}
+
+void FileNode::cleanup() {
+    auto iter = accessQueue.begin();
+    while (iter != accessQueue.end()) {
+        auto item = *iter;
+        if (item->dirty) {
+            this->writeBack(item->offset, item->Data);
+        }
+        delete item;
+        iter = accessQueue.erase(iter);
+        blockNum--;
+    }
+    if (accessQueue.size() <= CACHESIZE / 3) {
+        iter = cacheQueue.begin();
+        while (iter != cacheQueue.end()) {
+            auto item = *iter;
+            if (item->dirty) {
+                this->writeBack(item->offset, item->Data);
+            }
+            delete item;
+            iter = cacheQueue.erase(iter);
+            blockNum--;
+        }
     }
 }
