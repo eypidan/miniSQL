@@ -43,6 +43,8 @@ class FileNode {
     friend class BufferManager;
 public:
     BlockNode *operator[](int index); //get index's block
+    int *
+    allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
     void synchronize();
 
 };
@@ -50,7 +52,7 @@ public:
 //BufferManager contains operation about `Memory` and `Disk`
 class BufferManager {
 private:
-    vector<FileNode *> files;
+    vector<FileNode *> FileServices;
     list<BlockNode *> StructCacheQueue;  // store recently used struct
 public:
     BufferManager() = default;
@@ -60,7 +62,7 @@ public:
     bool CreateStruct(BlockNode *Newtable);             //return true => create table sucessfully, return false => table has existed.
     BlockNode *GetStruct(string TableName);
 
-    Block *allocNewNode();
+
     FileNode *GetFile(const string TableName);          //get this TableName's FileNode
     void DeleteFile(const string TableName);            //delte this table
 };

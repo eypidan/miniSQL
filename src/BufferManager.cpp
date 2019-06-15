@@ -12,8 +12,8 @@
 
 
 BufferManager::~BufferManager() {
-    for (auto &fp : files) {
-        fclose(fp);
+    for (auto FN : FileServices) {
+        fclose(FN->fp);
     }
 };
 //================ Struct part funcion===================
@@ -29,18 +29,21 @@ bool BufferManager::CreateStruct(BlockNode *Newtable) {
         this->StructCacheQueue.emplace_back(Newtable);
         fclose(fp);
 
+        //create Record file at the same time
+        auto *FN = new FileNode;
+        FN->FileName = Newtable->FileName;
+        FN->pin = false;
         FILE *Recordfp = fopen((Newtable->FileName + ".db").c_str(), "w");
-        this->files.emplace_back(Recordfp);
+        FN->fp = Recordfp;
+        this->FileServices.emplace_back(FN);
     }
 }
 
 bool BufferManager::JudgeStructExistence(string TableName) {
-
-    if (access((TableName + ".struct").c_str(), F_OK) != -1) {
+    if (access((TableName + ".struct").c_str(), F_OK) != -1)
         return true; // this file has been existed.
-    } else {
+    else
         return false;
-    }
 }
 
 BlockNode *BufferManager::GetStruct(string TableName) {
