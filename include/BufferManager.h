@@ -17,20 +17,24 @@
 #ifndef BUFFERMANAGER_BUFFERMANAGER_H
 #define BUFFERMANAGER_BUFFERMANAGER_H
 
-#define BLOCKSIZE 4096         //define BLOCKSIZE 4096 bit
+#define BLOCKSIZE 4096           //define BLOCKSIZE 4096 bit
 #define CACHESIZE 20000          //the MAX number of block in cache
+#define LRU_TIME_VALUE 2         // LRU Time
 #include <iostream>
 #include <string>
 #include <list>
 #include <unistd.h>
+#include <time.h>
 #include "MetaData.h"
 
+extern int blockNum;               //use a global varible to record the block number
 using namespace std;
 
 struct BlockNode {
     char *Data;
     bool dirty;                 //When the block.dirty == true, this block need to write back to disk
     int offset;                 //offset in FileNode
+    char flag = 0;                  //the priority of this BlockNode
     string FileName;              //Which file this block belongs to    
 };
 
@@ -40,13 +44,19 @@ class FileNode {
     list<BlockNode *> accessQueue;
     list<BlockNode *> cacheQueue;  // store recently used block
     FILE *fp;
+
+    char *readBlock(int offset);
+
+    void writeBack(int offset, char *Data);
     friend class BufferManager;
 public:
+    FileNode() = default;
+
+    ~FileNode();
     BlockNode *operator[](int index); //get index's block
     int
     allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
-    void synchronize();
-
+    void synchronize();                //deal with dirty block
 };
 
 //BufferManager contains operation about `Memory` and `Disk`

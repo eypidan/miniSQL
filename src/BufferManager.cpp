@@ -9,7 +9,7 @@
  *  RecordManager  -> .db file
  */
 
-
+int blockNum = 0;
 
 BufferManager::~BufferManager() {
     for (auto FN : FileServices) {
@@ -122,3 +122,115 @@ void BufferManager::DeleteFile(const string TableName) {
     if (remove((TableName + ".struct").c_str()) != 0) throw logic_error("Delete File error!");
 }
 //
+FileNode::~FileNode() {
+    auto iter = accessQueue.begin();
+    while (iter != accessQueue.end()) {
+        auto item = *iter;
+        if (item->dirty) {
+            this->writeBack(item->offset, item->Data);
+        }
+        delete item;
+        iter = accessQueue.erase(iter);
+        blockNum--;
+    }
+
+    iter = cacheQueue.begin();
+    while (iter != cacheQueue.end()) {
+        auto item = *iter;
+        if (item->dirty) {
+            this->writeBack(item->offset, item->Data);
+        }
+        delete item;
+        iter = cacheQueue.erase(iter);
+        blockNum--;
+    }
+}
+
+
+char *FileNode::readBlock(int offset) {
+    fseek(this->fp, offset * BLOCKSIZE, SEEK_SET);
+    auto *Data = new char[BLOCKSIZE];
+    fread(Data, BLOCKSIZE, 1, fp);
+    return Data;
+}
+
+
+int FileNode::allocNewNode(BlockNode *NewBlock) {
+    fseek(this->fp, 0, SEEK_END);
+    auto offset_char = (int) ftell(fp);
+    fwrite(NewBlock->Data, BLOCKSIZE, 1, fp);
+    fflush(fp);
+    NewBlock->FileName = this->FileName;
+    NewBlock->offset = offset_char / BLOCKSIZE;
+
+    accessQueue.push_front(NewBlock);
+    blockNum++;
+    return offset_char / BLOCKSIZE;
+}
+
+BlockNode *FileNode::operator[](int index) { //Use LRU to store recently used block
+    auto iter = cacheQueue.begin();
+    while (iter != cacheQueue.end()) {
+        auto item = *iter;
+        if (item->offset == index) {
+            item->flag = (char) time(nullptr);  //??
+            cacheQueue.push_front(item);
+            cacheQueue.erase(iter);
+            return item;
+        }
+        iter++;
+    }
+
+    iter = accessQueue.begin();
+    while (iter != accessQueue.end()) {
+        auto item = *iter;
+        if (item->offset == index) {
+            item->flag++;
+            if (item->flag == LRU_TIME_VALUE) {
+                cacheQueue.push_front(item);
+                accessQueue.erase(iter);
+            } else {
+                accessQueue.push_front(item);
+                accessQueue.erase(iter);
+            }
+            return item;
+        }
+        iter++;
+    }
+    if (blockNum >= CACHESIZE) {
+        // cleanup();
+    }
+    blockNum++;
+    auto *item = new BlockNode;
+    item->offset = index;
+    item->dirty = false;
+    item->flag = 0;
+    item->Data = this->readBlock(index);
+    accessQueue.push_front(item);
+    return item;
+}
+
+void FileNode::writeBack(int offset, char *Data) {
+    fseek(this->fp, offset * BLOCKSIZE, SEEK_SET);
+    fwrite(Data, BLOCKSIZE, 1, fp);
+    fflush(fp);
+}
+
+void FileNode::synchronize() {
+    auto iter = accessQueue.begin();
+    while (iter != accessQueue.end()) {
+        auto item = *iter;
+        if (item->dirty) {
+            this->writeBack(item->offset, item->Data);
+        }
+        iter++;
+    }
+    iter = cacheQueue.begin();
+    while (iter != cacheQueue.end()) {
+        auto item = *iter;
+        if (item->dirty) {
+            this->writeBack(item->offset, item->Data);
+        }
+        iter++;
+    }
+}
