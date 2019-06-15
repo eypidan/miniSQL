@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <ctime>
 #define SIZE 1000
-#define M 10
+#define NodeSize 4096
 
-INode<float, M> nodes[SIZE];
+INode<float, NodeSize> nodes[SIZE];
 float elements[SIZE];
 int top = 2;
 
@@ -21,7 +21,9 @@ void shuffle() {
 }
 
 int main() {
+	std::cout << sizeof(nodes[0]) << std::endl;
 	srand(time(NULL));
+	
 	for (int i = 0; i < SIZE; i++) {
 		nodes[i].id = i;
 		nodes[i].contentSize = 0;
@@ -29,7 +31,7 @@ int main() {
 		elements[i] = i;
 	}
 	
-	BPlusTree<float, M> tree(&nodes[1], [](int id) {
+	BPlusTree<float, NodeSize> tree(&nodes[1], [](int id) {
 		return &nodes[id];
 	}, [](auto node) {
 		nodes[node->id] = *node;
@@ -60,12 +62,13 @@ int main() {
 	if (max->node->value[max->position] != SIZE - 1) {
 		std::cout << "error!!!: max = " << max->node->value[max->position] << std::endl;
 	}
+	tree.printTree();
 	// test iteration
 	auto current = min->node;
 	do {
 		std::cout << current->value[0] << " ";
 		current = tree.next(current);
-	} while (current != max->node);
+	} while (current != max->node && current->id > 0);
 	std::cout << std::endl;
 	tree.printTree();
 	// test delete

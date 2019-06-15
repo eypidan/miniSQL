@@ -7,10 +7,11 @@
 #include <utility>
 #include <iostream>
 #include "Exception.h"
-#define TEMP_DEF template <typename T, int M>
-#define TEMP_NODE INode<T, M>
-#define TEMP_TREE BPlusTree<T, M>
-#define TEMP_POSITION LeafPosition<T, M>
+#define TEMP_DEF template <typename T, int NodeSize>
+#define TEMP_NODE INode<T, NodeSize>
+#define TEMP_TREE BPlusTree<T, NodeSize>
+#define TEMP_POSITION LeafPosition<T, NodeSize>
+#define M ((NodeSize - 4 * sizeof(int) - sizeof(bool)) / (sizeof(T) + sizeof(int)))
 
 TEMP_DEF
 struct INode {
