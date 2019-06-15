@@ -49,5 +49,19 @@ void GetStruct_Test() {
 
 void DeleteFile_Test() {
     BufferManager test;
-    test.DeleteFile("book");
+    int i;
+    BlockNode bn;
+    bn.FileName = "deltetable";
+    auto *testdata = new char[BLOCKSIZE];
+    for (i = 0; i < BLOCKSIZE; i++) {
+        testdata[i] = 50;
+    }
+    bn.Data = testdata;
+
+    if (test.JudgeStructExistence("deltetable")) {
+        printf("this table has been existed.");
+    } else {
+        test.CreateStruct(&bn);
+    }
+    test.DeleteFile("deltetable");
 }
