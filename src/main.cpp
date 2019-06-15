@@ -18,8 +18,8 @@ void CreateStruct_Test() {
     int i;
     BlockNode bn;
     bn.FileName = "book";
-    char *testdata = new char[BlOCKSIZE];
-    for (i = 0; i < BlOCKSIZE; i++) {
+    char *testdata = new char[BLOCKSIZE];
+    for (i = 0; i < BLOCKSIZE; i++) {
         testdata[i] = 50;
     }
     bn.Data = testdata;

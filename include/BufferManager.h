@@ -17,7 +17,7 @@
 #ifndef BUFFERMANAGER_BUFFERMANAGER_H
 #define BUFFERMANAGER_BUFFERMANAGER_H
 
-#define BlOCKSIZE 4096         //define BlOCKSIZE 4096 bit
+#define BLOCKSIZE 4096         //define BLOCKSIZE 4096 bit
 #define CACHESIZE 20000          //the MAX number of block in cache
 #include <iostream>
 #include <string>
@@ -39,7 +39,7 @@ class FileNode {
     bool pin;                     // pin a node
     list<BlockNode *> accessQueue;
     list<BlockNode *> cacheQueue;  // store recently used block
-
+    FILE *fp;
     friend class BufferManager;
 public:
     BlockNode *operator[](int index); //get index's block
@@ -50,7 +50,7 @@ public:
 //BufferManager contains operation about `Memory` and `Disk`
 class BufferManager {
 private:
-    vector<FILE *> files;
+    vector<FileNode *> files;
     list<BlockNode *> StructCacheQueue;  // store recently used struct
 public:
     BufferManager() = default;

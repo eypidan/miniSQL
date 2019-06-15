@@ -26,9 +26,11 @@ bool BufferManager::CreateStruct(BlockNode *Newtable) {
         FILE *fp = fopen((Newtable->FileName + ".struct").c_str(), "w");
         for (int i = 0; i < 4096; i++)
             fputc(Newtable->Data[i], fp);
-
         this->StructCacheQueue.emplace_back(Newtable);
         fclose(fp);
+
+        FILE *Recordfp = fopen((Newtable->FileName + ".db").c_str(), "w");
+        this->files.emplace_back(Recordfp);
     }
 }
 
@@ -58,9 +60,9 @@ BlockNode *BufferManager::GetStruct(string TableName) {
     BN->FileName = TableName;
     BN->dirty = false;
     BN->offset = 0;
-    BN->Data = new char[BlOCKSIZE];
+    BN->Data = new char[BLOCKSIZE];
     if (fpRead) {
-        while ((fread(BN->Data, 1, BlOCKSIZE, fpRead)) > 0)
+        while ((fread(BN->Data, 1, BLOCKSIZE, fpRead)) > 0)
             if (ferror(fpRead)) { ;/* deal with error */
             }
         fclose(fpRead);
