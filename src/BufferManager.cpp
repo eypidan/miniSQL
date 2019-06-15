@@ -1,5 +1,5 @@
 
-\//
+//
 // Created by eypidan on 6/4/2019.
 //
 #include "../include/BufferManager.h"
@@ -55,7 +55,7 @@ BlockNode *BufferManager::GetStruct(string TableName) {
         iter++;
     }
 
-    //can't find this table in memory, than read from disk
+    //can't find this table in memory, then read from disk
     FILE *fpRead = fopen((TableName + ".struct").c_str(), "r");
     auto *BN = new(BlockNode);
 
@@ -79,10 +79,46 @@ BlockNode *BufferManager::GetStruct(string TableName) {
 //================ Content part funcion===================
 //Content Function interface with RecordManager
 FileNode *BufferManager::GetFile(const string TableName) {
+    auto iter = this->FileServices.begin();   //a struct like LRU to read Record in memory
+    while (iter != this->FileServices.end()) {
+        auto item = *iter;
+        if (TableName == item->FileName)
+            return item;
+        iter++;
+    }
+
+    FILE *fp = fopen((TableName + ".db").c_str(), "r");
     auto *FN = new(FileNode);
     FN->FileName = TableName;
     FN->pin = false;
+    FN->fp = fp;
     return FN;
 }
 
+void BufferManager::DeleteFile(const string TableName) {
+    //need to delete both struct file and db file
+    auto iter = this->FileServices.begin();   //a struct like LRU to read Record in memory
+    while (iter != this->FileServices.end()) {
+        auto item = *iter;
+        if (TableName == item->FileName) {
+            fclose(item->fp);
+            this->FileServices.erase(iter);
+            break;
+        }
+        iter++;
+    }
+
+    auto iter2 = this->StructCacheQueue.begin();   //a struct like LRU to read Record in memory
+    while (iter2 != this->StructCacheQueue.end()) {
+        auto item = *iter;
+        if (TableName == item->FileName) {
+            this->StructCacheQueue.erase(iter2);
+            break;
+        }
+        iter++;
+    }
+
+    if (remove((TableName + ".db").c_str()) != 0) throw logic_error("Delete File error!");
+    if (remove((TableName + ".struct").c_str()) != 0) throw logic_error("Delete File error!");
+}
 //

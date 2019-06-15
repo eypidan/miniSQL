@@ -43,7 +43,7 @@ class FileNode {
     friend class BufferManager;
 public:
     BlockNode *operator[](int index); //get index's block
-    int *
+    int
     allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
     void synchronize();
 
