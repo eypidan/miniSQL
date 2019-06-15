@@ -41,11 +41,12 @@ public:
 		: _root(root), _getChildFunc(getChildFunc), _modifyNodeFunc(modifyNodeFunc),
 		_deleteNodeFunc(deleteNodeFunc), _createNodeFunc(createNodeFunc) {
 	}
-	std::shared_ptr<TEMP_POSITION> find(T value);
-	std::shared_ptr<TEMP_POSITION> findExtreme(bool isMax);
-	void insert(T value, int pointer);
-	bool del(T value);
+	TEMP_POSITION* find(T& value);
+	TEMP_POSITION* findExtreme(bool isMax);
+	void insert(T& value, int pointer);
+	bool del(T& value);
 	TEMP_NODE* next(TEMP_NODE* leafNode) const;
+	int getM() const { return M; };
 #ifdef _DEBUG
 	void printTree() const;
 #endif // _DEBUG
@@ -73,7 +74,7 @@ TEMP_NODE* TEMP_TREE::next(TEMP_NODE* leafNode) const
 }
 
 TEMP_DEF
-std::shared_ptr<TEMP_POSITION> TEMP_TREE::find(T value)
+TEMP_POSITION* TEMP_TREE::find(T& value)
 {
 	_stack.clear();
 	TEMP_NODE* current = _root;
@@ -83,21 +84,21 @@ std::shared_ptr<TEMP_POSITION> TEMP_TREE::find(T value)
 		current = _getChildFunc(current->pointers[i]);
 	}
 	int i = _findPos(current->value, value, current->contentSize) - 1;
-	return std::make_shared<TEMP_POSITION>(current, i);
+	return new TEMP_POSITION(current, i);
 }
 
 TEMP_DEF
-std::shared_ptr<TEMP_POSITION> TEMP_TREE::findExtreme(bool isMax)
+TEMP_POSITION* TEMP_TREE::findExtreme(bool isMax)
 {
 	TEMP_NODE* current = _root;
 	while (!current->isLeaf) {
 		current = _getChildFunc(current->pointers[isMax ? current->contentSize : 0]);
 	}
-	return std::make_shared<TEMP_POSITION>(current, isMax ? current->contentSize - 1 : 0);
+	return new TEMP_POSITION(current, isMax ? current->contentSize - 1 : 0);
 }
 
 TEMP_DEF
-void TEMP_TREE::insert(T value, int pointer)
+void TEMP_TREE::insert(T& value, int pointer)
 {
 	auto result = find(value);
 	TEMP_NODE* node = result->node;
@@ -186,7 +187,7 @@ void TEMP_TREE::insert(T value, int pointer)
 }
 
 TEMP_DEF
-bool TEMP_TREE::del(T value)
+bool TEMP_TREE::del(T& value)
 {
 	auto result = find(value);
 	TEMP_NODE* node = result->node;

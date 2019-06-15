@@ -17,12 +17,12 @@
 #ifndef BUFFERMANAGER_BUFFERMANAGER_H
 #define BUFFERMANAGER_BUFFERMANAGER_H
 
-#define BlOCKSIZE 4096         //define BlOCKSIZE 4096 bit
-#define TABLESIZE 100          //define the max number of table(<=> file in disk) is 100
-#define BLOCKSIZE 200          //define the max number of block is 200
+#define BLOCKSIZE 4096         //define BLOCKSIZE 4096 bit
+#define CACHESIZE 20000          //the MAX number of block in cache
 #include <iostream>
 #include <string>
 #include <list>
+#include <unistd.h>
 #include "MetaData.h"
 
 using namespace std;
@@ -38,11 +38,13 @@ class FileNode {
 	string FileName;              // A table maps a File i.e. BookTable -> Book.db
 	bool pin;                     // pin a node
 	list<BlockNode *> accessQueue;
-	list<BlockNode *> cacheQueue;
-
+	list<BlockNode *> cacheQueue;  // store recently used block
+	FILE *fp;
 	friend class BufferManager;
 public:
 	BlockNode *operator[](int index); //get index's block
+	int
+		allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
 	void synchronize();
 
 };
@@ -50,13 +52,16 @@ public:
 //BufferManager contains operation about `Memory` and `Disk`
 class BufferManager {
 private:
-	vector<FileNode> FileService;
+	vector<FileNode *> FileServices;
+	list<BlockNode *> StructCacheQueue;  // store recently used struct
 public:
-	BufferManager();
+	BufferManager() = default;
 	~BufferManager();
 
+	bool JudgeStructExistence(string TableName);    //return true => file exist
 	bool CreateStruct(BlockNode *Newtable);             //return true => create table sucessfully, return false => table has existed.
 	BlockNode *GetStruct(string TableName);
+
 
 	FileNode *GetFile(const string TableName);          //get this TableName's FileNode
 	void DeleteFile(const string TableName);            //delte this table
