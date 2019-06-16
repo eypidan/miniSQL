@@ -1,9 +1,9 @@
 #include "..\include\lexer.h"
+#include <stdexcept>
 
 namespace Interpreter {
-	Lexer::Lexer(std::istream & is)
+	Lexer::Lexer(std::istream & is):srcText(is)
 	{
-		srcText = is;
 		lineNum = colNum = 0;
 		getNextLine();
 	}
@@ -11,8 +11,19 @@ namespace Interpreter {
 	std::vector<Token> Lexer::tokenize()
 	{
 		std::vector<Token> tokens;
-		tokens.push_back(getNextToken());
+		while (!reachEnd()) {
+			tokens.push_back(getNextToken());
+		}
 		return tokens;
+	}
+
+
+	bool Lexer::reachEnd()
+	{
+		if (pos == currLine.end() && !getNextLine()) {
+			return true;
+		}
+		else return false;
 	}
 
 
@@ -31,9 +42,13 @@ namespace Interpreter {
 	Token Lexer::getNextToken()
 	{
 		// read past and ignore any whitespace characters
-
+		while (*pos == ' ') {
+			pos++;
+			colNum++;
+		}
 
 		// Create a new token with line and column index
+		if (*pos)
 		return Token();
 	}
 

@@ -13,79 +13,81 @@ namespace Interpreter {
 	Token::Token(const Keyword & kv, const int ln, const int cn)
 	{
 		type = TokenType::KEYWORD;
-		value.svalue = kv;
+		value.kvalue = kv;
 		lineNum = ln;
 		colNum = cn;
 	}
 	Token::Token(TokenType t, const std::string & strv, const int ln, const int cn)
 	{
 		type = t;
-		value.svalue = strv;
+		value.strvalue = strv;
 		lineNum = ln;
 		colNum = cn;
 	}
 	Token::Token(const int intv, const int ln, const int cn)
 	{
 		type = TokenType::INTEGER;
-		value.svalue = intv;
+		value.intvalue = intv;
 		lineNum = ln;
 		colNum = cn;
 	}
 	Token::Token(float fv, const int ln, const int cn)
 	{
 		type = TokenType::FLOAT;
-		value.svalue = fv;
+		value.fvalue = fv;
 		lineNum = ln;
 		colNum = cn;
 	}
 
+	static const std::map<TokenType, std::string> strTokenType{
+		{TokenType::SYMBOL, "Symbol"},
+		{TokenType::KEYWORD, "Keyword"},
+		{TokenType::IDENTIFIER, "Identifier"},
+		{TokenType::INTEGER, "Integer"},
+		{TokenType::FLOAT, "Float"},
+		{TokenType::STRING, "String"}
+	};
+
+	static const std::map<Symbol, std::string> strSymbolType{
+		{Symbol::ASTERISK, "*"},
+		{Symbol::LBRACKET, "("},
+		{Symbol::RBRACKET, ")"},
+		{Symbol::PLUS, "+"},
+		{Symbol::LT, "<"},
+		{Symbol::GT, ">"},
+		{Symbol::EQ, "="},
+		{Symbol::LEQ, "<="},
+		{Symbol::GEQ, ">="},
+		{Symbol::NEQ, "!="}
+	};
+
+	static const std::map<Keyword, std::string> strKeywordType{
+		{Keyword::AND, "and"},
+		{Keyword::CHAR, "char"},
+		{Keyword::CREATE, "create"},
+		{Keyword::DELETE, "delete"},
+		{Keyword::DROP, "drop"},
+		{Keyword::EXECFILE, "execfile"},
+		{Keyword::FLOAT, "float"},
+		{Keyword::FROM, "from"},
+		{Keyword::INDEX, "index"},
+		{Keyword::INSERT, "insert"},
+		{Keyword::INT, "int"},
+		{Keyword::INTO, "into"},
+		{Keyword::KEY, "key"},
+		{Keyword::ON, "on"},
+		{Keyword::PRIMARY, "primary"},
+		{Keyword::QUIT, "quit"},
+		{Keyword::SELECT, "select"},
+		{Keyword::TABLE, "table"},
+		{Keyword::UNIQUE, "unique"},
+		{Keyword::VALUES, "values"},
+		{Keyword::WHERE, "where"}
+	};
+
 	void printToken(Token token)
 	{
-		const std::map<TokenType, std::string> strTokenType{
-			{TokenType::SYMBOL, "Symbol"},
-			{TokenType::KEYWORD, "Keyword"},
-			{TokenType::IDENTIFIER, "Identifier"},
-			{TokenType::INTEGER, "Integer"},
-			{TokenType::FLOAT, "Float"},
-			{TokenType::STRING, "String"},
-		}; 
 		
-		const std::map<Symbol, std::string> strSymbolType{
-			{Symbol::ASTERISK, "*"},
-			{Symbol::LBRACKET, "("},
-			{Symbol::RBRACKET, ")"},
-			{Symbol::PLUS, "+"},
-			{Symbol::LT, "<"},
-			{Symbol::GT, ">"},
-			{Symbol::EQ, "="},
-			{Symbol::LEQ, "<="},
-			{Symbol::GEQ, ">="},
-			{Symbol::NEQ, "!="}
-		};
-
-		const std::map<Keyword, std::string> strKeywordType{
-			{Keyword::AND, "and"},
-			{Keyword::CHAR, "char"},
-			{Keyword::CREATE, "create"},
-			{Keyword::DELETE, "delete"},
-			{Keyword::DROP, "drop"},
-			{Keyword::EXECFILE, "execfile"},
-			{Keyword::FLOAT, "float"},
-			{Keyword::FROM, "from"},
-			{Keyword::INDEX, "index"},
-			{Keyword::INSERT, "insert"},
-			{Keyword::INT, "int"},
-			{Keyword::INTO, "into"},
-			{Keyword::KEY, "key"},
-			{Keyword::ON, "on"},
-			{Keyword::PRIMARY, "primary"},
-			{Keyword::QUIT, "quit"},
-			{Keyword::SELECT, "select"},
-			{Keyword::TABLE, "table"},
-			{Keyword::UNIQUE, "unique"},
-			{Keyword::VALUES, "values"},
-			{Keyword::WHERE, "where"},
-		};
 
 		std::cout << token.lineNum << '\t'
 			<< token.colNum << '\t'

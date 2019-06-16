@@ -21,6 +21,7 @@ namespace Interpreter {
 		std::vector<Token> tokenize();
 
 	private:
+		bool reachEnd();
 		bool getNextLine();
 		Token getNextToken();
 		std::istream &srcText;
