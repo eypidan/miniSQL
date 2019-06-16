@@ -12,95 +12,68 @@
 int blockNum = 0;
 
 BufferManager::~BufferManager() {
-    for (auto FN : FileServices) {
-        fclose(FN->fp);
-    }
+//    for (auto FN : FileServices) {
+//        fclose(FN->fp);
+//    }
 };
 //================ Struct part funcion===================
 //struct Function interface with CatalogManager
-bool BufferManager::CreateStruct(BlockNode *Newtable) {
+bool BufferManager::CreateFile(string FileName) {
+    FILE *fp = fopen(FileName.c_str(), "w");
+    if (fp == nullptr)
+        throw logic_error("Create file error!");
 
-    if (access((Newtable->FileName + ".struct").c_str(), F_OK) != -1) {
-        return false; // this file has been existed.
-    } else {
-        FILE *fp = fopen((Newtable->FileName + ".struct").c_str(), "w");
-        for (int i = 0; i < 4096; i++)
-            fputc(Newtable->Data[i], fp);
-        this->StructCacheQueue.emplace_back(Newtable);
-        fclose(fp);
-
-        //create Record file at the same time
-        auto *FN = new FileNode;
-        FN->FileName = Newtable->FileName;
-        FN->pin = false;
-        FILE *Recordfp = fopen((Newtable->FileName + ".db").c_str(), "w");
-        FN->fp = Recordfp;
-        this->FileServices.emplace_back(FN);
-    }
+    //create Record file at the same time
+    auto *FN = new FileNode;
+    FN->FileName = FileName;
+    FN->pin = false;
+    FN->fp = fp;
+    this->FileServices.emplace_back(FN);
 }
 
-bool BufferManager::JudgeStructExistence(string TableName) {
-    if (access((TableName + ".struct").c_str(), F_OK) != -1)
+bool BufferManager::JudgeFileExistence(string FileName) {
+    auto iter = this->FileServices.begin();
+    while (iter != this->FileServices.end()) {
+        auto item = *iter;
+        if (FileName == item->FileName)
+            return true;
+        iter++;
+    }
+
+    if (access(FileName.c_str(), F_OK) != -1)
         return true; // this file has been existed.
     else
         return false;
 }
 
-BlockNode *BufferManager::GetStruct(string TableName) {
-    auto iter = this->StructCacheQueue.begin();   //a struct like LRU to read struct in memory
-    while (iter != this->StructCacheQueue.end()) {
-        auto item = *iter;
-        if (TableName == item->FileName)
-            return item;
-        iter++;
-    }
-
-    //can't find this table in memory, then read from disk
-    FILE *fpRead = fopen((TableName + ".struct").c_str(), "r");
-    auto *BN = new(BlockNode);
-
-
-    BN->FileName = TableName;
-    BN->dirty = false;
-    BN->offset = 0;
-    BN->Data = new char[BLOCKSIZE];
-    if (fpRead) {
-        while ((fread(BN->Data, 1, BLOCKSIZE, fpRead)) > 0)
-            if (ferror(fpRead)) { ;/* deal with error */
-            }
-        fclose(fpRead);
-        this->StructCacheQueue.emplace_back(BN);
-        return BN;
-    } else {
-        throw logic_error("Can't find this file!");
-    }
-}
 
 //================ Content part funcion===================
 //Content Function interface with RecordManager
-FileNode *BufferManager::GetFile(const string TableName) {
+FileNode *BufferManager::GetFile(const string FileName) {
     auto iter = this->FileServices.begin();   //a struct like LRU to read Record in memory
     while (iter != this->FileServices.end()) {
         auto item = *iter;
-        if (TableName == item->FileName)
+        if (FileName == item->FileName)
             return item;
         iter++;
     }
 
-    FILE *fp = fopen((TableName + ".db").c_str(), "r");
+    FILE *fp = fopen(FileName.c_str(), "r+");
+    if (fp == nullptr) throw logic_error("Didn't create this file yet.");
     auto *FN = new(FileNode);
-    FN->FileName = TableName;
+    FN->FileName = FileName;
     FN->pin = false;
     FN->fp = fp;
+    this->FileServices.emplace_back(FN);
     return FN;
 }
 
-void BufferManager::DeleteFile(const string TableName) {
+void BufferManager::DeleteFile(const string FileName) {
     //need to delete both struct file and db file
     auto iter = this->FileServices.begin();   //a struct like LRU to read Record in memory
     while (iter != this->FileServices.end()) {
         auto item = *iter;
-        if (TableName == item->FileName) {
+        if (FileName == item->FileName) {
             fclose(item->fp);
             this->FileServices.erase(iter);
             break;
@@ -108,18 +81,7 @@ void BufferManager::DeleteFile(const string TableName) {
         iter++;
     }
 
-    auto iter2 = this->StructCacheQueue.begin();   //a struct like LRU to read Record in memory
-    while (iter2 != this->StructCacheQueue.end()) {
-        auto item = *iter;
-        if (TableName == item->FileName) {
-            this->StructCacheQueue.erase(iter2);
-            break;
-        }
-        iter++;
-    }
-
-    if (remove((TableName + ".db").c_str()) != 0) throw logic_error("Delete File error!");
-    if (remove((TableName + ".struct").c_str()) != 0) throw logic_error("Delete File error!");
+    if (remove(FileName.c_str()) != 0) throw logic_error("Delete File error!");
 }
 //
 FileNode::~FileNode() {
@@ -129,6 +91,7 @@ FileNode::~FileNode() {
         if (item->dirty) {
             this->writeBack(item->offset, item->Data);
         }
+
         delete item;
         iter = accessQueue.erase(iter);
         blockNum--;
@@ -157,9 +120,9 @@ char *FileNode::readBlock(int offset) {
 
 int FileNode::allocNewNode(BlockNode *NewBlock) {
     fseek(this->fp, 0, SEEK_END);
-    auto offset_char = (int) ftell(fp);
-    fwrite(NewBlock->Data, BLOCKSIZE, 1, fp);
-    fflush(fp);
+    auto offset_char = (int) ftell(this->fp);
+    fwrite(NewBlock->Data, BLOCKSIZE, 1, this->fp);
+////    fflush(this->fp);
     NewBlock->FileName = this->FileName;
     NewBlock->offset = offset_char / BLOCKSIZE;
 
@@ -168,7 +131,7 @@ int FileNode::allocNewNode(BlockNode *NewBlock) {
     return offset_char / BLOCKSIZE;
 }
 
-BlockNode *FileNode::operator[](int index) { //Use LRU to store recently used block
+BlockNode *FileNode::getblock(int index) { //Use LRU to store recently used block
     auto iter = cacheQueue.begin();
     while (iter != cacheQueue.end()) {
         auto item = *iter;
