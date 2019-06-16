@@ -21,7 +21,7 @@ BufferManager::~BufferManager() {
 bool BufferManager::CreateFile(string FileName) {
     FILE *fp = fopen(FileName.c_str(), "w");
     if (fp == nullptr)
-        throw logic_error("Create file error!");
+        throw SQLException("Create file error!");
 
     //create Record file at the same time
     auto *FN = new FileNode;
@@ -59,7 +59,7 @@ FileNode *BufferManager::GetFile(const string FileName) {
     }
 
     FILE *fp = fopen(FileName.c_str(), "r+");
-    if (fp == nullptr) throw logic_error("Didn't create this file yet.");
+    if (fp == nullptr) throw SQLException("Didn't create this file yet.");
     auto *FN = new(FileNode);
     FN->FileName = FileName;
     FN->pin = false;
@@ -81,7 +81,7 @@ void BufferManager::DeleteFile(const string FileName) {
         iter++;
     }
 
-    if (remove(FileName.c_str()) != 0) throw logic_error("Delete File error!");
+    if (remove(FileName.c_str()) != 0) throw SQLException("Delete File error!");
 }
 //
 FileNode::~FileNode() {
