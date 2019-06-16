@@ -205,6 +205,8 @@ void FileNode::cleanup() {
         if (item->dirty) {
             this->writeBack(item->offset, item->Data);
         }
+        delete item->Data;
+        item->Data=nullptr;
         delete item;
         iter = accessQueue.erase(iter);
         blockNum--;
@@ -216,6 +218,7 @@ void FileNode::cleanup() {
             if (item->dirty) {
                 this->writeBack(item->offset, item->Data);
             }
+            delete item->Data;
             delete item;
             iter = cacheQueue.erase(iter);
             blockNum--;

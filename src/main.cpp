@@ -39,12 +39,13 @@ void FileNode_Test() {
     }
 
     //start to test fileNode
-    auto *BNset = new BlockNode[30000];
+
     for (int i = 0; i < 30000; i++) {
-        BNset[i].Data = new char[BLOCKSIZE];
+        auto BNset = new BlockNode;
+        BNset->Data = new char[BLOCKSIZE];
         for (int j = 0; j < BLOCKSIZE; j++)
-            BNset[i].Data[j] = (char) (j % 125);
-        testfile->allocNewNode(BNset + i);
+            BNset->Data[j] = (char) (j % 125);
+        testfile->allocNewNode(BNset);
     }
 
     int rand_num;
