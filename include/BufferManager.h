@@ -17,54 +17,61 @@
 #ifndef BUFFERMANAGER_BUFFERMANAGER_H
 #define BUFFERMANAGER_BUFFERMANAGER_H
 
-#define BLOCKSIZE 4096         //define BLOCKSIZE 4096 bit
+#define BLOCKSIZE 4096           //define BLOCKSIZE 4096 bit
 #define CACHESIZE 20000          //the MAX number of block in cache
+#define LRU_TIME_VALUE 2         // LRU Time
 #include <iostream>
 #include <string>
 #include <list>
 #include <unistd.h>
+#include <time.h>
 #include "MetaData.h"
 
+extern int blockNum;               //use a global varible to record the block number
 using namespace std;
 
 struct BlockNode {
-	char *Data;
-	bool dirty;                 //When the block.dirty == true, this block need to write back to disk
+	char *Data = NULL;
+	bool dirty = false;                 //When the block.dirty == true, this block need to write back to disk
 	int offset;                 //offset in FileNode
+	char flag = 0;                  //the priority of this BlockNode
 	string FileName;              //Which file this block belongs to    
 };
 
 class FileNode {
 	string FileName;              // A table maps a File i.e. BookTable -> Book.db
-	bool pin;                     // pin a node
+	bool pin = false;                     // pin a node
 	list<BlockNode *> accessQueue;
 	list<BlockNode *> cacheQueue;  // store recently used block
-	FILE *fp;
+	FILE *fp = NULL;
+
+	char *readBlock(int offset);
+	void cleanup();
+	void writeBack(int offset, char *Data);
 	friend class BufferManager;
 public:
-	BlockNode *operator[](int index); //get index's block
+
+	FileNode() = default;
+	~FileNode();
+
+	BlockNode *getblock(int index); //get index's block
 	int
 		allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
-	void synchronize();
-
+	void synchronize();                //deal with dirty block
 };
 
 //BufferManager contains operation about `Memory` and `Disk`
 class BufferManager {
 private:
 	vector<FileNode *> FileServices;
-	list<BlockNode *> StructCacheQueue;  // store recently used struct
 public:
 	BufferManager() = default;
 	~BufferManager();
 
-	bool JudgeStructExistence(string TableName);    //return true => file exist
-	bool CreateStruct(BlockNode *Newtable);             //return true => create table sucessfully, return false => table has existed.
-	BlockNode *GetStruct(string TableName);
-
-
-	FileNode *GetFile(const string TableName);          //get this TableName's FileNode
-	void DeleteFile(const string TableName);            //delte this table
+	bool JudgeFileExistence(string FileName);    //return true => file exist
+	bool CreateFile(string FileName);        //return true => create table sucessfully.
+	FileNode *GetFile(const string FileName);    //get this FileName's FileNode
+	void DeleteFile(const string FileName);      //delte this file
 };
 
 

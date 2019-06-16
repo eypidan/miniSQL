@@ -46,7 +46,7 @@ public:
 	int indexInRecord;
 	std::shared_ptr<IndexIterator> next();
 private:
-	~IndexIterator();
+	//~IndexIterator();
 	void* leafPosition;
 	IndexManager* indexManager;
 

@@ -3,4 +3,4 @@ project(BufferManager)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(BufferManager ./src/main.cpp)
+add_executable(BufferManager ./src/main.cpp ./src/BufferManager.cpp)
