@@ -36,9 +36,9 @@ struct CharWrapper
 
 IndexManager::IndexManager(Index& index) : _index(index)
 {
-	//Table table = CM::findTable(index.tableName);
-	// for test
+	Table table = CM::findTable(index.tableName);
 	vector<Property> properties;
+	/*// for test
 	std::string a = "a";
 	std::string b = "b";
 	std::string c = "c";
@@ -55,9 +55,8 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	properties.push_back(p2);
 	properties.push_back(p3);
 	properties.push_back(p4);
-
-	Table table(index.tableName, a, properties);
-
+	Table table(index.tableName, a, properties);*/
+	// Find property
 	int i;
 	for (i = 0; i < table.properties.size(); i++) {
 		if (table.properties[i].name == index.propertyName) {
@@ -68,7 +67,6 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	if (i == table.properties.size()) {
 		throw SQLException("Index " + index.indexName + ".property: " + index.propertyName + "not found in table: " + index.tableName + "!");
 	}
-	// TODO: Need to test !!!!
 	BufferManager bufferManager;
 	treeFile = bufferManager.GetFile(index.indexName + ".index");
 	if (treeFile == NULL) {
@@ -76,6 +74,7 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	}
 	BlockNode* header = treeFile->getblock(0);
 	int* rootIndex = (int*)header->Data;
+	// template tree instantiation with different value type.
 	switch (property->type.getBaseType()) {
 	case BaseType::INT:
 		createTree<int, BLOCKSIZE>(*rootIndex);
@@ -107,14 +106,12 @@ void IndexManager::createTree(int rootIndex)
 		root, 
 		[=](int id) { // get child
 			BlockNode* node = treeFile->getblock(id);
-			//std::cout << "get: " << id << " " << node->offset << std::endl;
 			return (INode<T, size>*) node->Data;
 		}, [=](auto node) { // modify
 			BlockNode* block = treeFile->getblock(node->id);
 			block->dirty = true;
-			//std::cout << "save: " << node->id << " " << sizeof(INode<T, size>) << std::endl;
 		}, [=](auto node) { // delete
-			// TODO: mark delete
+			// nothing to do
 		}, [=]() { // create
 			BlockNode* newBlock = new BlockNode;
 			newBlock->Data = new char[BLOCKSIZE];
@@ -126,7 +123,6 @@ void IndexManager::createTree(int rootIndex)
 			BlockNode* block = treeFile->getblock(0);
 			memcpy(block->Data, &newRootId, sizeof(int));
 			block->dirty = true;
-			//std::cout << "root: " << newRootId << std::endl;
 		});
 }
 
@@ -204,6 +200,7 @@ std::shared_ptr<IndexIterator> IndexManager::find(Value* value)
 		return generateIterator(treeImpl3->find(CharWrapper(value)));
 	}
 	}
+	throw SQLException("Unknown type");
 }
 
 std::shared_ptr<IndexIterator> IndexManager::findMinOrMax(bool min)
@@ -223,6 +220,7 @@ std::shared_ptr<IndexIterator> IndexManager::findMinOrMax(bool min)
 		return generateIterator(treeImpl3->findExtreme(!min));
 	}
 	}
+	throw SQLException("Unknown type");
 }
 
 void IndexManager::createNewIndex(Index& index)
@@ -293,26 +291,26 @@ std::shared_ptr<IndexIterator> IndexManager::generateIterator(LeafPosition<T, BL
 	re->indexManager = this;
 	return re;
 }
-/*
+
 IndexIterator::~IndexIterator()
 {
 
 	BaseType type = indexManager->property->type.getBaseType();
 	switch (type) {
 	case BaseType::FLOAT:
-		//delete (LeafPosition<float, BLOCKSIZE>*)leafPosition;
+		delete (LeafPosition<float, BLOCKSIZE>*)leafPosition;
 		break;
 	case BaseType::INT:
-		//delete (LeafPosition<int, BLOCKSIZE>*)leafPosition;
+		delete (LeafPosition<int, BLOCKSIZE>*)leafPosition;
 		break;
 	case BaseType::CHAR:
-		//delete (LeafPosition<CharWrapper, BLOCKSIZE>*)leafPosition;
+		delete (LeafPosition<CharWrapper, BLOCKSIZE>*)leafPosition;
 		break;
 	}
 	delete currentValue;
 
 }
-	*/
+
 std::shared_ptr<IndexIterator> IndexIterator::next()
 {
 	BaseType type = indexManager->property->type.getBaseType();
@@ -324,6 +322,7 @@ std::shared_ptr<IndexIterator> IndexIterator::next()
 	case BaseType::CHAR:
 		return generateNext<CharWrapper>();
 	}
+	throw SQLException("Unknown type");
 }
 
 template <typename T>

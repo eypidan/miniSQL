@@ -26,7 +26,7 @@ int main()
 	IndexManager manager(index);
 	Type type(BaseType::CHAR, 7);
 	// test add
-	for (int i = 0; i < 520; i++) {
+	for (int i = 0; i < 10000; i++) {
 		char data[7];
 		generateString(data, i);
 		Value value(type, data);
