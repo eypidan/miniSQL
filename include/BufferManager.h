@@ -1,5 +1,5 @@
 //
-// Created by px on 6/9/2019.
+// Created by PangSiyuan on 6/9/2019.
 //
 /* Instruction to BuuferManager :
  * 1. FileNode contain BlockNode
@@ -36,19 +36,19 @@ extern int blockNum;               //use a global varible to record the block nu
 using namespace std;
 
 struct BlockNode {
-	char *Data = NULL;
-	bool dirty = false;                 //When the block.dirty == true, this block need to write back to disk
-	int offset;                 //offset in FileNode
-	char flag = 0;                  //the priority of this BlockNode
-	string FileName;              //Which file this block belongs to    
+    char *Data = NULL;
+    bool dirty = false;                 //When the block.dirty == true, this block need to write back to disk
+    int offset;                 //offset in FileNode
+    bool pin = false;                     // pin a Blocknode
+    char flag = 0;                  //the priority of this BlockNode
+    string FileName;              //Which file this block belongs to    
 };
 
 class FileNode {
-	string FileName;              // A table maps a File i.e. BookTable -> Book.db
-	bool pin = false;                     // pin a node
-	list<BlockNode *> accessQueue;
-	list<BlockNode *> cacheQueue;  // store recently used block
-	FILE *fp = NULL;
+    string FileName;              // A table maps a File i.e. BookTable -> Book.db
+    list<BlockNode *> accessQueue;
+    list<BlockNode *> cacheQueue;  // store recently used block
+    FILE *fp = NULL;
 
 	char *readBlock(int offset);
 	void cleanup();
@@ -56,13 +56,14 @@ class FileNode {
 	friend class BufferManager;
 public:
 
-	FileNode() = default;
-	~FileNode();
+    FileNode() = default;
 
-	BlockNode *getblock(int index); //get index's block
-	int
-		allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
-	void synchronize();                //deal with dirty block
+    ~FileNode();  //write dirty block to disk
+    int getBlockNum();   //get this FileNode's block number
+    BlockNode *getblock(int index); //get index's block
+    int
+    allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
+    void synchronize();                //deal with dirty block
 };
 
 //BufferManager contains operation about `Memory` and `Disk`
@@ -79,5 +80,6 @@ public:
 	void DeleteFile(const string FileName);      //delte this file
 };
 
+static BufferManager bufferManager;
 
 #endif //BUFFERMANAGER_BUFFERMANAGER_H

@@ -67,7 +67,6 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	if (i == table.properties.size()) {
 		throw SQLException("Index " + index.indexName + ".property: " + index.propertyName + "not found in table: " + index.tableName + "!");
 	}
-	BufferManager bufferManager;
 	treeFile = bufferManager.GetFile(index.indexName + ".index");
 	if (treeFile == NULL) {
 		throw SQLException("Index file " + index.indexName + ".index not found!");

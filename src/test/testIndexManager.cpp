@@ -16,29 +16,30 @@ int main()
 {
 	string indexName = "indexname";
 	string tableName = "tableName";
-	string keyName = "c";
+	string keyName = "a";
 	Index index(indexName, tableName, keyName);
 	BufferManager bufferManager;
 	if (bufferManager.JudgeFileExistence(indexName + ".index")) {
 		IndexManager::dropIndex(index);
 	}
+	
 	IndexManager::createNewIndex(index);
 	IndexManager manager(index);
-	Type type(BaseType::CHAR, 7);
+	Type type(BaseType::INT, 7);
 	// test add
 	for (int i = 0; i < 10000; i++) {
-		char data[7];
-		generateString(data, i);
-		Value value(type, data);
+		int j = i;
+		//char data[7];
+		//generateString(data, i);
+		Value value(type, &j);
 		manager.insertEntry(&value, i + 1000);
 	}
 	manager.printTree();
 	// test delete
 	cout << "begin delete: ";
 	for (int i = 0; i < 520; i += 2) {
-		char data[7];
-		generateString(data, i);
-		Value value(type, data);
+		int j = i;
+		Value value(type, &j);
 		manager.deleteEntry(&value);
 	}
 	// test disk
@@ -52,8 +53,7 @@ int main()
 	Value value(type, data);
 	auto iter = manager2.find(&value);
 	while (iter) {
-		string re(iter->currentValue->getAsType<char>());
-		cout << re << ": " << iter->indexInRecord << endl;
+		cout << iter->currentValue->getAsType<int>() << ": " << iter->indexInRecord << endl;
 		iter = iter->next();
 	}
 	// test iterator
@@ -61,8 +61,7 @@ int main()
 	int count = 0;
 	iter = manager2.findMinOrMax(true);
 	while (iter) {
-		string re(iter->currentValue->getAsType<char>());
-		cout << re << ": " << iter->indexInRecord << endl;
+		cout << iter->currentValue->getAsType<int>() << ": " << iter->indexInRecord << endl;
 		iter = iter->next();
 		count++;
 	}
