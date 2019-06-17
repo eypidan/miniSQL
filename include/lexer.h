@@ -23,7 +23,9 @@ namespace Interpreter {
 	private:
 		bool reachEnd();
 		bool getNextLine();
+		void skipChars(int n);
 		Token getNextToken();
+
 		std::istream &srcText;
 		std::string currLine;
 		std::string::iterator pos;

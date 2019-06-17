@@ -8,15 +8,12 @@
 
 using namespace Interpreter;
 
-
-
 int main() {
 	std::ifstream fin(IFILENAME);
-	std::istream is;
-	fin >> is;
+	std::istream & is = fin;
 	Lexer lexer(is);
 	
-	vector<Token> tokens = lexer.tokenize();
+	std::vector<Token> tokens = lexer.tokenize();
 	std::for_each(tokens.begin(), tokens.end(), printToken);
 
 	return 0;

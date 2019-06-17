@@ -91,15 +91,15 @@ namespace Interpreter {
 
 		std::cout << token.lineNum << '\t'
 			<< token.colNum << '\t'
-			<< strTokenType.find(token.type) << '\t';
+			<< strTokenType.find(token.type)->second << '\t';
 
 		switch (token.type)
 		{
 			case TokenType::SYMBOL:
-				std::cout << strSymbolType.find(token.value.svalue);
+				std::cout << strSymbolType.find(token.value.svalue)->second;
 				break;
 			case TokenType::KEYWORD:
-				std::cout << strKeywordType.find(token.value.kvalue);
+				std::cout << strKeywordType.find(token.value.kvalue)->second;
 				break;
 			case TokenType::INTEGER:
 				std::cout << token.value.intvalue;
