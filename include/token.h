@@ -7,6 +7,8 @@ namespace Interpreter {
 enum class Symbol {
 	// one-character symbols
 	ASTERISK,
+	SEMI,
+	COMMA,
 	LBRACKET,
 	RBRACKET,
 	PLUS,
@@ -71,7 +73,7 @@ public:
 	Token(const int intv, const int ln, const int cn);
 	Token(float fv, const int ln, const int cn);
 
-	friend void printToken(Token token);
+	friend void printToken(Token & token);
 private:
 	TokenType type;
 	TokenValue value;

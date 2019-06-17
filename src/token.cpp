@@ -1,4 +1,4 @@
-#include <token.h>
+#include "token.h"
 #include <iostream>
 #include <map>
 
@@ -50,6 +50,8 @@ namespace Interpreter {
 
 	static const std::map<Symbol, std::string> strSymbolType{
 		{Symbol::ASTERISK, "*"},
+		{Symbol::SEMI, ";"},
+		{Symbol::COMMA, ","},
 		{Symbol::LBRACKET, "("},
 		{Symbol::RBRACKET, ")"},
 		{Symbol::PLUS, "+"},
@@ -85,13 +87,11 @@ namespace Interpreter {
 		{Keyword::WHERE, "where"}
 	};
 
-	void printToken(Token token)
+	void printToken(Token & token)
 	{
-		
-
-		std::cout << token.lineNum << '\t'
-			<< token.colNum << '\t'
-			<< strTokenType.find(token.type)->second << '\t';
+		std::cout << token.lineNum << " \t"
+			<< token.colNum << " \t"
+			<< strTokenType.find(token.type)->second << " \t";
 
 		switch (token.type)
 		{
@@ -103,12 +103,16 @@ namespace Interpreter {
 				break;
 			case TokenType::INTEGER:
 				std::cout << token.value.intvalue;
+				break;
 			case TokenType::FLOAT:
 				std::cout << token.value.fvalue;
+				break;
 			case TokenType::IDENTIFIER:
 				std::cout << token.value.strvalue;
+				break;
 			case TokenType::STRING:
 				std::cout << token.value.strvalue;
+				break;
 		default:
 			break;
 		}

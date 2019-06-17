@@ -24,6 +24,7 @@ namespace Interpreter {
 		bool reachEnd();
 		bool getNextLine();
 		void skipChars(int n);
+		void skipSpaces();
 		Token getNextToken();
 
 		std::istream &srcText;
