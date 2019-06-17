@@ -12,14 +12,14 @@
 int blockNum = 0;
 
 BufferManager::~BufferManager() {
-//    for (auto FN : FileServices) {
-//        fclose(FN->fp);
-//    }
+    for (auto FN : FileServices) {
+        fclose(FN->fp);
+    }
 };
 //================ Struct part funcion===================
 //struct Function interface with CatalogManager
 bool BufferManager::CreateFile(string FileName) {
-    FILE *fp = fopen(FileName.c_str(), "w");
+    FILE *fp = fopen(FileName.c_str(), "wb");
     if (fp == nullptr)
         throw SQLException("Create file error!");
 
@@ -109,6 +109,13 @@ FileNode::~FileNode() {
     }
 }
 
+int FileNode::getBlockNum() {
+    fseek(this->fp, 0, SEEK_END);
+    auto offset_char = (int) ftell(this->fp);
+    int sum;
+    sum = offset_char / BLOCKSIZE;
+    return sum;
+}
 
 char *FileNode::readBlock(int offset) {
     fseek(this->fp, offset * BLOCKSIZE, SEEK_SET);
@@ -119,10 +126,10 @@ char *FileNode::readBlock(int offset) {
 
 
 int FileNode::allocNewNode(BlockNode *NewBlock) {
-    fseek(this->fp, 0, SEEK_END);
+    fseek(this->fp, 0, SEEK_END);  // get the end of the fp, start to write new block
     auto offset_char = (int) ftell(this->fp);
     fwrite(NewBlock->Data, BLOCKSIZE, 1, this->fp);
-////    fflush(this->fp);
+    fflush(this->fp);
     NewBlock->FileName = this->FileName;
     NewBlock->offset = offset_char / BLOCKSIZE;
 
@@ -132,11 +139,12 @@ int FileNode::allocNewNode(BlockNode *NewBlock) {
 }
 
 BlockNode *FileNode::getblock(int index) { //Use LRU to store recently used block
+    //cacheQueue has the highest ring to be read
     auto iter = cacheQueue.begin();
     while (iter != cacheQueue.end()) {
         auto item = *iter;
         if (item->offset == index) {
-            item->flag = (char) time(nullptr);  //??
+            item->flag = (char) time(nullptr);  // refresh this block's time
             cacheQueue.push_front(item);
             cacheQueue.erase(iter);
             return item;
@@ -149,7 +157,7 @@ BlockNode *FileNode::getblock(int index) { //Use LRU to store recently used bloc
         auto item = *iter;
         if (item->offset == index) {
             item->flag++;
-            if (item->flag == LRU_TIME_VALUE) {
+            if (item->flag == LRU_TIME_VALUE || item->pin) { //add block to cacheQueue depends on pin and last used time
                 cacheQueue.push_front(item);
                 accessQueue.erase(iter);
             } else {
@@ -163,6 +171,7 @@ BlockNode *FileNode::getblock(int index) { //Use LRU to store recently used bloc
     if (blockNum >= CACHESIZE) {
         cleanup();
     }
+    //if can;t get this block from memory,then read from disk
     blockNum++;
     auto *item = new BlockNode;
     item->offset = index;
@@ -179,7 +188,7 @@ void FileNode::writeBack(int offset, char *Data) {
     fflush(fp);
 }
 
-void FileNode::synchronize() {
+void FileNode::synchronize() {   //write dirty block to disk
     auto iter = accessQueue.begin();
     while (iter != accessQueue.end()) {
         auto item = *iter;
@@ -211,17 +220,19 @@ void FileNode::cleanup() {
         iter = accessQueue.erase(iter);
         blockNum--;
     }
-    if (accessQueue.size() <= CACHESIZE / 3) {
+    if (accessQueue.size() <= CACHESIZE / 3) { //if accessQueue is not small enough
         iter = cacheQueue.begin();
         while (iter != cacheQueue.end()) {
             auto item = *iter;
-            if (item->dirty) {
-                this->writeBack(item->offset, item->Data);
+            if (!item->pin) { //didn't delete the pin's block
+                if (item->dirty) {
+                    this->writeBack(item->offset, item->Data);
+                }
+                delete item->Data;
+                delete item;
+                iter = cacheQueue.erase(iter);
+                blockNum--;
             }
-            delete item->Data;
-            delete item;
-            iter = cacheQueue.erase(iter);
-            blockNum--;
         }
     }
 }
