@@ -1,7 +1,7 @@
 #include "CatalogManager.h"
 #include "MetaData.h"
 #include "Exception.h"
-#include "IndexManager.h""
+#include "IndexManager.h"
 #include "BufferManager.h"
 namespace CM {
 	BufferManager *bm = new BufferManager();
@@ -30,36 +30,36 @@ namespace CM {
 		return table;
 	}
 	void createTable(std::string name, vector<Property> &properties, int primary, vector<Index> index) {
-		//Èç¹ûÒÑ´æÔÚ¸Ã±í£¬ÔòÒì³£
+		//å¦‚æœå·²å­˜åœ¨è¯¥è¡¨ï¼Œåˆ™å¼‚å¸¸
 		FileNode *file = new FileNode;
 		BlockNode *block = new BlockNode;
 		block->Data = new char[BLOCKSIZE];
 		if (hasTable(name)) {
 			throw SQLException("table exists");
 		}
-		//È·±£Ö÷¼üÎªunique
+		//ç¡®ä¿ä¸»é”®ä¸ºunique
 		Property property = properties[0];
 		property.unique = true;
-		//¼ÇÂ¼Ã¿ÌõĞÅÏ¢µÄ×Ö·ûÊı£¨°üÀ¨ÕâÀïµÄ5¸ö£©
+		//è®°å½•æ¯æ¡ä¿¡æ¯çš„å­—ç¬¦æ•°ï¼ˆåŒ…æ‹¬è¿™é‡Œçš„5ä¸ªï¼‰
 		std::string str_tmp = "0000 ";
-		//Ìí¼Óname
+		//æ·»åŠ name
 		str_tmp += name;
-		//Ìí¼ÓÃ»¸öattributeµÄĞÅÏ¢£¬Ë³ĞòÎªÀàĞÍ£¬Ãû×Ö£¬ÊÇ·ñÎªÎ¨Ò»
+		//æ·»åŠ æ²¡ä¸ªattributeçš„ä¿¡æ¯ï¼Œé¡ºåºä¸ºç±»å‹ï¼Œåå­—ï¼Œæ˜¯å¦ä¸ºå”¯ä¸€
 		for (int i = 0; i < properties.size; i++)
 			str_tmp = str_tmp + " " + properties[i].type.getBaseType + " " + properties[i].name + " " + (properties[i].unique == true ? "1" : "0");
-		//Ìí¼ÓindexµÄÊıÁ¿, ;ÓÃÀ´×ö±ê¼ÇindexµÄ¿ªÊ¼
+		//æ·»åŠ indexçš„æ•°é‡, ;ç”¨æ¥åšæ ‡è®°indexçš„å¼€å§‹
 		str_tmp = str_tmp + " ;" + name;
-		//Ìí¼ÓindexµÄĞÅÏ¢£¬Ë³ĞòÎªÏà¶ÔÎ»ÖÃºÍÃû×Ö
+		//æ·»åŠ indexçš„ä¿¡æ¯ï¼Œé¡ºåºä¸ºç›¸å¯¹ä½ç½®å’Œåå­—
 		for (int i = 0; i < index.size; i++)
 			str_tmp = str_tmp + " " + index[i].indexName + " " + index[i].propertyName;
-		//»»ĞĞºóÔÚ½áÎ²½ÓÉÏÒ»¸ö#£¬Ã¿¸ö¿éÒÔ#½áÎ²
+		//æ¢è¡Œååœ¨ç»“å°¾æ¥ä¸Šä¸€ä¸ª#ï¼Œæ¯ä¸ªå—ä»¥#ç»“å°¾
 		str_tmp = str_tmp + "\n" + "#";
-		//¸ü¸ÄÃ¿ÌõĞÅÏ¢µÄ³¤¶ÈµÄ¼ÇÂ¼
+		//æ›´æ”¹æ¯æ¡ä¿¡æ¯çš„é•¿åº¦çš„è®°å½•
 		std::string str_len = ((int)str_tmp.length() - 1).to_string();
 		str_tmp = str_len + str_tmp.substr(4, str_tmp.length() - 4);
 		char *buffer = file->operator[](file->allocNewNode(block))->Data;
 		strcat(buffer, str_tmp.c_str());
-		//ÕâÀïÃ»¿¼ÂÇbuffer²»¹»µÄÇé¿ö¡£
+		//è¿™é‡Œæ²¡è€ƒè™‘bufferä¸å¤Ÿçš„æƒ…å†µã€‚
 		strcat(buffer, str_tmp.c_str());
 	}
 	void dropTable(Table &table) {
