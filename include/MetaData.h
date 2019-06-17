@@ -119,6 +119,7 @@ struct Index {
 	std::string indexName;
 	std::string tableName;
 	std::string propertyName;
+	Index(Index& index) = default;
 	Index(std::string indexName, std::string tableName, std::string propertyName)
 		: indexName(indexName), tableName(tableName), propertyName(propertyName) {}
 };

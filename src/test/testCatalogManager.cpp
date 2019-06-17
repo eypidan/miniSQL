@@ -30,5 +30,33 @@ int main() {
 	CM::createTable(table);
 
 	auto t = CM::findTable(tableName);
-	cout << t->primaryKey << " " << t->tableName << " " << t->properties.size() << " " << t->properties[3].name;
+	cout << t->primaryKey << " " << t->tableName << " " << t->properties.size() << " " << t->properties[3].name << endl;
+
+	string indexName1("index1");
+	Index index1(indexName1, tableName, a);
+	if (CM::hasIndex(indexName1)) {
+		CM::dropIndex(index1);
+	}
+	CM::createIndex(index1);
+	cout << CM::findIndexByName(indexName1)->tableName << endl;
+	cout << CM::findIndexByTable(tableName, a)->propertyName << endl;
+
+	string indexName2("index2");
+	Index index2(indexName2, tableName, b);
+	if (CM::hasIndex(indexName2)) {
+		CM::dropIndex(index2);
+	}
+	CM::createIndex(index2);
+	cout << CM::findIndexByName(indexName2)->tableName << endl;
+	cout << CM::findIndexByTable(tableName, b)->propertyName << endl;
+
+	string indexName3("index757575");
+	Index index3(indexName3, tableName, c);
+	if (CM::hasIndex(indexName3)) {
+		CM::dropIndex(index3);
+	}
+	CM::createIndex(index3);
+	cout << CM::findIndexByName(indexName3)->indexName << endl;
+	cout << CM::findIndexByTable(tableName, c)->propertyName << endl;
+
 }
