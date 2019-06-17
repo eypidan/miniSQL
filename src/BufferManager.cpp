@@ -26,7 +26,6 @@ bool BufferManager::CreateFile(string FileName) {
     //create Record file at the same time
     auto *FN = new FileNode;
     FN->FileName = FileName;
-    FN->pin = false;
     FN->fp = fp;
     this->FileServices.emplace_back(FN);
 }
@@ -62,7 +61,7 @@ FileNode *BufferManager::GetFile(const string FileName) {
     if (fp == nullptr) throw SQLException("Didn't create this file yet.");
     auto *FN = new(FileNode);
     FN->FileName = FileName;
-    FN->pin = false;
+
     FN->fp = fp;
     this->FileServices.emplace_back(FN);
     return FN;
@@ -184,8 +183,8 @@ BlockNode *FileNode::getblock(int index) { //Use LRU to store recently used bloc
 
 void FileNode::writeBack(int offset, char *Data) {
     fseek(this->fp, offset * BLOCKSIZE, SEEK_SET);
-    fwrite(Data, BLOCKSIZE, 1, fp);
-    fflush(fp);
+    fwrite(Data, BLOCKSIZE, 1, this->fp);
+    fflush(this->fp);
 }
 
 void FileNode::synchronize() {   //write dirty block to disk

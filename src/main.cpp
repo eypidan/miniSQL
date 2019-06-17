@@ -50,7 +50,7 @@ void FileNode_Test() {
     }
 
     int rand_num;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10000; i++) {
         rand_num = (int) (30000 * rand()) / (RAND_MAX + 1);
         BlockNode *x;
         x = testfile->getblock(rand_num);
