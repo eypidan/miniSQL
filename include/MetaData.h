@@ -20,6 +20,7 @@ public:
 	}
 
 	inline void setType(BaseType baseType, size_t charSize = 0) {
+		this->baseType = baseType;
 		switch (baseType) {
 			case BaseType::INT:
 				size = sizeof(int);
@@ -42,19 +43,19 @@ public:
 };
 
 struct Property {
-	Type &type;
-	std::string &name;
-	Property(Type &type, std::string &name) : type(type), name(name) {}
+	Type type;
+	std::string name;
+	Property(Type type, std::string name) : type(type), name(name) {}
 };
 
 class Value {
 private:
-	Type &type;
+	Type type;
 	void *val;
 public:
 
-	Value(Type &type, void *val) : type(type), val(val) {}
-	Value(Type &type, const void *val) : type(type) {
+	Value(Type type, void *val) : type(type), val(val) {}
+	Value(Type type, const void *val) : type(type) {
 		setConst(val);
 	}
 	
@@ -75,7 +76,7 @@ public:
 		this->type = type;
 	}
 
-	inline Type& getType() const {
+	inline Type getType() const {
 		return type;
 	}
 
@@ -98,18 +99,18 @@ struct Predicate {
 };
 
 struct Table {
-	std::string &tableName;
-	std::string &primaryKey;
-	std::vector<Property> &properties;
-	Table(std::string &tableName, std::string &primaryKey, std::vector<Property> &properties)
+	std::string tableName;
+	std::string primaryKey;
+	std::vector<Property> properties;
+	Table(std::string tableName, std::string primaryKey, std::vector<Property> properties)
 			: tableName(tableName), primaryKey(primaryKey), properties(properties) {}
 };
 
 struct Index {
-	std::string &indexName;
-	std::string &tableName;
-	std::string &propertyName;
-	Index(std::string &indexName, std::string &tableName, std::string &propertyName)
+	std::string indexName;
+	std::string tableName;
+	std::string propertyName;
+	Index(std::string indexName, std::string tableName, std::string propertyName)
 		: indexName(indexName), tableName(tableName), propertyName(propertyName) {}
 };
 

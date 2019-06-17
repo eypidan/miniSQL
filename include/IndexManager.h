@@ -25,6 +25,10 @@ public:
 	//static std::shared_ptr<Index> findIndexByName(std::string& indexName);
 	static void createNewIndex(Index& index);
 	static void dropIndex(Index& index);
+
+#ifdef _DEBUG
+	void printTree() const;
+#endif // _DEBUG
 private:
 	Index& _index;
 	Property* property;

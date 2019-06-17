@@ -23,7 +23,12 @@
 #include <iostream>
 #include <string>
 #include <list>
-#include <unistd.h>
+//#include <unistd.h>
+#include <io.h>
+#include <process.h>
+#ifndef F_OK
+#define F_OK 0
+#endif // F_OK
 #include <time.h>
 #include "MetaData.h"
 

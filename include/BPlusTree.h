@@ -37,9 +37,10 @@ public:
 	BPlusTree(TEMP_NODE* root, std::function<TEMP_NODE*(int)> getChildFunc,
 		std::function<void(TEMP_NODE*)> modifyNodeFunc,
 		std::function<void(TEMP_NODE*)> deleteNodeFunc,
-		std::function<TEMP_NODE*(void)> createNodeFunc)
+		std::function<TEMP_NODE*(void)> createNodeFunc, 
+		std::function<void(int)> onRootChangeFunc)
 		: _root(root), _getChildFunc(getChildFunc), _modifyNodeFunc(modifyNodeFunc),
-		_deleteNodeFunc(deleteNodeFunc), _createNodeFunc(createNodeFunc) {
+		_deleteNodeFunc(deleteNodeFunc), _createNodeFunc(createNodeFunc), _onRootChangeFunc(onRootChangeFunc){
 	}
 	TEMP_POSITION* find(T& value);
 	TEMP_POSITION* findExtreme(bool isMax);
@@ -57,6 +58,7 @@ private:
 	std::function<void(TEMP_NODE*)> _modifyNodeFunc;
 	std::function<void(TEMP_NODE*)> _deleteNodeFunc;
 	std::function<TEMP_NODE*(void)> _createNodeFunc;
+	std::function<void(int)> _onRootChangeFunc;
 	std::list<std::shared_ptr<TEMP_POSITION>> _stack;
 	int _findPos(T values[], T value, int size);
 	void _delInternal();
@@ -172,6 +174,7 @@ void TEMP_TREE::insert(T& value, int pointer)
 				_root->value[0] = middle;
 				_root->pointers[0] = newNode->id;
 				_root->pointers[1] = node->id;
+				_onRootChangeFunc(_root->id);
 				_modifyNodeFunc(_root);
 				break;
 			}
@@ -294,6 +297,7 @@ void TEMP_TREE::_delInternal()
 			_root->id = oldId;
 			_modifyNodeFunc(_root);*/
 			_root = _getChildFunc(_root->pointers[0]);
+			_onRootChangeFunc(_root->id);
 		}
 	}
 	else {
@@ -395,8 +399,8 @@ void TEMP_TREE::printTree() const
 		std::cout << "[" << node->id << "]";
 		int i;
 		for (i = 0; i < node->contentSize; i++) {
+			std::cout << "(" << node->pointers[i] << ")";
 			if (node->isInternal) {
-				std::cout << "(" << node->pointers[i] << ")";
 				queue.push_back(std::make_pair(p.first + 1, node->pointers[i]));
 			}
 			std::cout << node->value[i];

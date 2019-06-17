@@ -27,6 +27,11 @@ struct CharWrapper
 	bool operator <=(const CharWrapper& another) { return strcmp(content, another.content) <= 0; }
 	bool operator >=(const CharWrapper& another) { return strcmp(content, another.content) >= 0; }
 	bool operator ==(const CharWrapper& another) { return strcmp(content, another.content) == 0; }
+	friend ostream & operator<<(ostream & os, const CharWrapper & c) {
+		std::string s(c.content);
+		os << s;
+		return os;
+	}
 };
 
 IndexManager::IndexManager(Index& index) : _index(index)
@@ -34,17 +39,30 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	//Table table = CM::findTable(index.tableName);
 	// for test
 	vector<Property> properties;
-	properties.push_back(Property(Type(BaseType::INT, 0), std::string("a")));
-	properties.push_back(Property(Type(BaseType::FLOAT, 0), std::string("b")));
-	properties.push_back(Property(Type(BaseType::CHAR, 7), std::string("c")));
-	properties.push_back(Property(Type(BaseType::CHAR, 254), std::string("d")));
+	std::string a = "a";
+	std::string b = "b";
+	std::string c = "c";
+	std::string d = "d";
+	Type t1(BaseType::INT, 0);
+	Type t2(BaseType::FLOAT, 0);
+	Type t3(BaseType::CHAR, 7);
+	Type t4(BaseType::CHAR, 254);
+	Property p1(t1, a);
+	Property p2(t2, b);
+	Property p3(t3, c);
+	Property p4(t4, d);
+	properties.push_back(p1);
+	properties.push_back(p2);
+	properties.push_back(p3);
+	properties.push_back(p4);
 
-	Table table(std::string("tablename"), std::string("a"), properties);
+	Table table(index.tableName, a, properties);
 
 	int i;
 	for (i = 0; i < table.properties.size(); i++) {
 		if (table.properties[i].name == index.propertyName) {
-			property = &table.properties[i];
+			property = new Property(table.properties[i]);
+			break;
 		}
 	}
 	if (i == table.properties.size()) {
@@ -56,7 +74,7 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	if (treeFile == NULL) {
 		throw SQLException("Index file " + index.indexName + ".index not found!");
 	}
-	BlockNode* header = (*treeFile)[0];
+	BlockNode* header = treeFile->getblock(0);
 	int* rootIndex = (int*)header->Data;
 	switch (property->type.getBaseType()) {
 	case BaseType::INT:
@@ -73,38 +91,51 @@ IndexManager::IndexManager(Index& index) : _index(index)
 
 IndexManager::~IndexManager() 
 {
-
+	delete property;
 }
 
 template<typename T, int size>
 void IndexManager::createTree(int rootIndex)
 {
+	auto block = treeFile->getblock(rootIndex);
+	auto root = (INode<T, size>*)block->Data;
+	if (root->id != rootIndex) {
+		root->id = rootIndex;
+		block->dirty = true;
+	}
 	tree = new BPlusTree<T, size>(
-		(INode<T, size>*)((*treeFile)[rootIndex]->Data), 
-		[=](int id) {
-			BlockNode* node = (*treeFile)[id];
+		root, 
+		[=](int id) { // get child
+			BlockNode* node = treeFile->getblock(id);
+			//std::cout << "get: " << id << " " << node->offset << std::endl;
 			return (INode<T, size>*) node->Data;
-		}, [=](auto node) {
-			BlockNode* block = (*treeFile)[node->id];
-			block->Data = (char*) node;
+		}, [=](auto node) { // modify
+			BlockNode* block = treeFile->getblock(node->id);
 			block->dirty = true;
-		}, [=](auto node) {
+			//std::cout << "save: " << node->id << " " << sizeof(INode<T, size>) << std::endl;
+		}, [=](auto node) { // delete
 			// TODO: mark delete
-		}, [=]() {
+		}, [=]() { // create
 			BlockNode* newBlock = new BlockNode;
 			newBlock->Data = new char[BLOCKSIZE];
-			INode<T, size>* treeNode = new INode<T, size>;
-			memcpy(newBlock->Data, treeNode, sizeof(treeNode));
-			treeNode->id = treeFile->allocNewNode(newBlock) / BLOCKSIZE;
+			auto treeNode = (INode<T, size>*) newBlock->Data;
+			treeNode->id = treeFile->allocNewNode(newBlock);
 			newBlock->dirty = true;
 			return treeNode;
-		}
-		);
+		}, [=](auto newRootId) { // root change
+			BlockNode* block = treeFile->getblock(0);
+			memcpy(block->Data, &newRootId, sizeof(int));
+			block->dirty = true;
+			//std::cout << "root: " << newRootId << std::endl;
+		});
 }
 
 void IndexManager::insertEntry(Value* newValue, int indexInRecord)
 {
 	BaseType type = property->type.getBaseType();
+	if (newValue->getType().getBaseType() != type) {
+		throw SQLException("Type of the entry inserted doesn't match B+ tree type!");
+	}
 	switch (type) {
 	case BaseType::FLOAT: {
 		auto treeImpl = (BPlusTree<float, BLOCKSIZE>*)tree;
@@ -128,6 +159,9 @@ void IndexManager::insertEntry(Value* newValue, int indexInRecord)
 bool IndexManager::deleteEntry(Value* value)
 {
 	BaseType type = property->type.getBaseType();
+	if (value->getType().getBaseType() != type) {
+		throw SQLException("Type of the entry deleted doesn't match B+ tree type!");
+	}
 	bool re;
 	switch (type) {
 	case BaseType::FLOAT: {
@@ -153,6 +187,9 @@ bool IndexManager::deleteEntry(Value* value)
 std::shared_ptr<IndexIterator> IndexManager::find(Value* value)
 {
 	BaseType type = property->type.getBaseType();
+	if (value->getType().getBaseType() != type) {
+		throw SQLException("Type of the entry to find doesn't match B+ tree type!");
+	}
 	switch (type) {
 	case BaseType::FLOAT: {
 		auto treeImpl = (BPlusTree<float, BLOCKSIZE>*)tree;
@@ -203,10 +240,13 @@ void IndexManager::createNewIndex(Index& index)
 	}
 	BlockNode* header = new BlockNode;
 	header->Data = new char[BLOCKSIZE];
+	memset(header->Data, 0, BLOCKSIZE);
 	fileNode->allocNewNode(header);
 
 	BlockNode* root = new BlockNode;
 	root->Data = new char[BLOCKSIZE];
+	memset(root->Data, 0, BLOCKSIZE);
+
 	int id = fileNode->allocNewNode(root);
 	memcpy(header->Data, &id, sizeof(id));
 
@@ -219,6 +259,28 @@ void IndexManager::dropIndex(Index& index)
 	std::string fileName = index.indexName + ".index";
 	BufferManager bufferManager;
 	bufferManager.DeleteFile(fileName);
+}
+
+void IndexManager::printTree() const
+{
+	BaseType type = property->type.getBaseType();
+	switch (type) {
+	case BaseType::FLOAT: {
+		auto treeImpl = (BPlusTree<float, BLOCKSIZE>*)tree;
+		treeImpl->printTree();
+		break;
+	}
+	case BaseType::INT: {
+		auto treeImpl = (BPlusTree<int, BLOCKSIZE>*)tree;
+		treeImpl->printTree();
+		break;
+	}
+	case BaseType::CHAR: {
+		auto treeImpl = (BPlusTree<CharWrapper, BLOCKSIZE>*)tree;
+		treeImpl->printTree();
+		break;
+	}
+	}
 }
 
 template<typename T>
