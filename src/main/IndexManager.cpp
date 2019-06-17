@@ -16,7 +16,7 @@ struct CharWrapper
 	char content[255];
 	CharWrapper() = default;
 	CharWrapper(Value* value) {
-		memcpy(content, value->getAsType<char*>(), value->getType().getSize() * sizeof(char));
+		memcpy(content, value->getAsType<char>(), value->getType().getSize() * sizeof(char));
 	}
 	CharWrapper& operator =(CharWrapper& obj) {
 		memcpy(content, obj.content, sizeof(content));

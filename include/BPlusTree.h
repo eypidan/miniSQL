@@ -384,7 +384,7 @@ void TEMP_TREE::printTree() const
 	std::list<std::pair<int, int>> queue;
 	queue.push_back(std::make_pair(0, _root->id));
 	int preLevel = -1;
-	std::cout << "B+ Tree: ";
+	std::cout << "B+ Tree: M = " << M;
 	while (!queue.empty()) {
 		std::pair<int, int> p = queue.front();
 		queue.pop_front();
