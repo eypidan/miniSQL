@@ -58,7 +58,7 @@ FileNode *BufferManager::GetFile(const string FileName) {
         iter++;
     }
 
-    FILE *fp = fopen(FileName.c_str(), "r+");
+    FILE *fp = fopen(FileName.c_str(), "rb+");
     if (fp == nullptr) throw SQLException("Didn't create this file yet.");
     auto *FN = new(FileNode);
     FN->FileName = FileName;

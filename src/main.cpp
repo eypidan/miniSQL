@@ -9,6 +9,7 @@ void BufferManager_Test();
 void FileNode_Test();
 int main() {
     srand((unsigned) time(nullptr));
+    
     BufferManager_Test();
     FileNode_Test();
     printf("\nTest Finish.\n");
