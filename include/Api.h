@@ -16,11 +16,11 @@ namespace API {
 
 	SQLResult<void> createTable(Table &table);
 
-	SQLResult<void> dropTable(Table &table);
+	SQLResult<void> dropTable(std::string & tableName); // tableName only
 
 	SQLResult<void> createIndex(Index &index);
 
-	SQLResult<void> dropIndex(Index &index);
+	SQLResult<void> dropIndex(std::string & indexName); // indexName only
 
 	SQLResult<View> select(
 		std::vector<std::string> &properties,
