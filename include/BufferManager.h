@@ -1,5 +1,5 @@
 //
-// Created by px on 6/9/2019.
+// Created by PangSiyuan on 6/9/2019.
 //
 /* Instruction to BuuferManager :
  * 1. FileNode contain BlockNode
@@ -23,37 +23,44 @@
 #include <iostream>
 #include <string>
 #include <list>
-#include <unistd.h>
+//#include <unistd.h>
+#include <io.h>
+#include <process.h>
+#ifndef F_OK
+#define F_OK 0
+#endif // F_OK
 #include <time.h>
 #include "MetaData.h"
-
+#include "Exception.h"
 extern int blockNum;               //use a global varible to record the block number
 using namespace std;
 
 struct BlockNode {
     char *Data = NULL;
-    bool dirty;                 //When the block.dirty == true, this block need to write back to disk
+    bool dirty = false;                 //When the block.dirty == true, this block need to write back to disk
     int offset;                 //offset in FileNode
+    bool pin = false;                     // pin a Blocknode
     char flag = 0;                  //the priority of this BlockNode
     string FileName;              //Which file this block belongs to    
 };
 
 class FileNode {
     string FileName;              // A table maps a File i.e. BookTable -> Book.db
-    bool pin;                     // pin a node
     list<BlockNode *> accessQueue;
     list<BlockNode *> cacheQueue;  // store recently used block
-    FILE *fp;
+    FILE *fp = NULL;
 
-    char *readBlock(int offset);
-    void cleanup();
-    void writeBack(int offset, char *Data);
-    friend class BufferManager;
+	char *readBlock(int offset);
+	void cleanup();
+	void writeBack(int offset, char *Data);
+	friend class BufferManager;
 public:
+
     FileNode() = default;
 
-    ~FileNode();
-    BlockNode *operator[](int index); //get index's block
+    ~FileNode();  //write dirty block to disk
+    int getBlockNum();   //get this FileNode's block number
+    BlockNode *getblock(int index); //get index's block
     int
     allocNewNode(BlockNode *NewBlock); //add a new block to a fileNode ,return the offset of this block in this fileNode
     void synchronize();                //deal with dirty block
@@ -62,16 +69,17 @@ public:
 //BufferManager contains operation about `Memory` and `Disk`
 class BufferManager {
 private:
-    vector<FileNode *> FileServices;
+	vector<FileNode *> FileServices;
 public:
-    BufferManager() = default;
-    ~BufferManager();
+	BufferManager() = default;
+	~BufferManager();
 
-    bool JudgeFileExistence(string FileName);    //return true => file exist
-    bool CreateFile(string FileName);        //return true => create table sucessfully, return false => table has existed.
-    FileNode *GetFile(const string FileName);    //get this FileName's FileNode
-    void DeleteFile(const string FileName);      //delte this file
+	bool JudgeFileExistence(string FileName);    //return true => file exist
+	bool CreateFile(string FileName);        //return true => create table sucessfully.
+	FileNode *GetFile(const string FileName);    //get this FileName's FileNode
+	void DeleteFile(const string FileName);      //delte this file
 };
 
+static BufferManager bufferManager;
 
 #endif //BUFFERMANAGER_BUFFERMANAGER_H

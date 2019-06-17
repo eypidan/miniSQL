@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cstring>
 
 enum BaseType { 
 	INT, 
@@ -15,11 +16,16 @@ private:
 	size_t size;
 public:
 
+	Type() {
+
+	}
+
 	Type(BaseType baseType, size_t charSize = 0) {
 		setType(baseType, charSize);
 	}
 
 	inline void setType(BaseType baseType, size_t charSize = 0) {
+		this->baseType = baseType;
 		switch (baseType) {
 			case BaseType::INT:
 				size = sizeof(int);
@@ -42,20 +48,23 @@ public:
 };
 
 struct Property {
-	Type &type;
-	std::string &name;
+	Type type;
+	char name[64];
 	bool unique;
-	Property(Type &type, bool unique, std::string &name) : type(type),unique(unique),name(name) {}
+	Property() {}
+	Property(Type type, bool unique, std::string &name) : type(type),unique(unique) {
+		strcpy(this->name, name.c_str());
+	}
 };
 
 class Value {
 private:
-	Type &type;
+	Type type;
 	void *val;
 public:
 
-	Value(Type &type, void *val) : type(type), val(val) {}
-	Value(Type &type, const void *val) : type(type) {
+	Value(Type type, void *val) : type(type), val(val) {}
+	Value(Type type, const void *val) : type(type) {
 		setConst(val);
 	}
 	
@@ -76,7 +85,7 @@ public:
 		this->type = type;
 	}
 
-	inline Type& getType() const {
+	inline Type getType() const {
 		return type;
 	}
 
@@ -107,10 +116,10 @@ struct Table {
 };
 
 struct Index {
-	std::string &indexName;
-	std::string &tableName;
-	std::string &propertyName;
-	Index(std::string &indexName, std::string &tableName, std::string &propertyName)
+	std::string indexName;
+	std::string tableName;
+	std::string propertyName;
+	Index(std::string indexName, std::string tableName, std::string propertyName)
 		: indexName(indexName), tableName(tableName), propertyName(propertyName) {}
 };
 

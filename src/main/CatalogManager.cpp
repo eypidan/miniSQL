@@ -3,68 +3,79 @@
 #include "Exception.h"
 #include "IndexManager.h"
 #include "BufferManager.h"
-namespace CM {
-	BufferManager *bm = new BufferManager();
-	IndexIterator *iter = new IndexIterator();
-	Table table;
-	BlockNode *block;
-	FileNode *file;
-	Value *value;
-	char data[BLOCKSIZE];
-	bool hasTable(std::string & tableName) {
-		string fileName = (tableName + ".struct").c_str(); //don't know the table structure
-		return bm->JudgeFileExistence(fileName);   //judge the struct if exists
-	}
-	Table& findTable(std::string & tableName) {
-		if (!hasTable(tableName)) {
-			throw SQLException("Table exists!");
-		}
-		else
-		{
-			table.tableName = tableName;
-			string fileName = (tableName + ".struct").c_str();
-			file = bm->GetFile(fileName);
-			
 
-		}
-		return table;
+#define TABLE_STRUCT_FILE(x) (x + "_table.struct")
+#define INDEX_STRUCT_FILE(x) (x + "_index.struct")
+#define STR_LEN 64
+
+namespace CM {
+	using namespace std;
+	bool hasTable(std::string & tableName) {
+		return bufferManager.JudgeFileExistence(TABLE_STRUCT_FILE(tableName));   //judge the struct if exists
 	}
-	void createTable(std::string name, vector<Property> &properties, int primary, vector<Index> index) {
-		//如果已存在该表，则异常
-		FileNode *file = new FileNode;
-		BlockNode *block = new BlockNode;
+
+	void createTable(Table &table) {
+		if (hasTable(table.tableName)) {
+			throw SQLException("table " + table.tableName + " exists");
+		}
+		bufferManager.CreateFile(TABLE_STRUCT_FILE(table.tableName));
+		FileNode* file = bufferManager.GetFile(TABLE_STRUCT_FILE(table.tableName));
+		BlockNode* block = new BlockNode;
 		block->Data = new char[BLOCKSIZE];
-		if (hasTable(name)) {
-			throw SQLException("table exists");
+
+		int p = 0;
+		char buff[STR_LEN];
+		strcpy(buff, table.tableName.c_str());
+		memcpy(block->Data, buff, STR_LEN);
+		p += STR_LEN;
+		
+		strcpy(buff, table.primaryKey.c_str());
+		memcpy(block->Data + p, buff, STR_LEN);
+		p += STR_LEN;
+
+		int size = table.properties.size();
+		memcpy(block->Data + p, &size, sizeof(int));
+		p += sizeof(int);
+
+		for (int i = 0; i < size; i++) {
+			memcpy(block->Data + p, &table.properties[i], sizeof(Property));
+			p += sizeof(Property);
 		}
-		//确保主键为unique
-		Property property = properties[0];
-		property.unique = true;
-		//记录每条信息的字符数（包括这里的5个）
-		std::string str_tmp = "0000 ";
-		//添加name
-		str_tmp += name;
-		//添加没个attribute的信息，顺序为类型，名字，是否为唯一
-		for (int i = 0; i < properties.size; i++)
-			str_tmp = str_tmp + " " + properties[i].type.getBaseType + " " + properties[i].name + " " + (properties[i].unique == true ? "1" : "0");
-		//添加index的数量, ;用来做标记index的开始
-		str_tmp = str_tmp + " ;" + name;
-		//添加index的信息，顺序为相对位置和名字
-		for (int i = 0; i < index.size; i++)
-			str_tmp = str_tmp + " " + index[i].indexName + " " + index[i].propertyName;
-		//换行后在结尾接上一个#，每个块以#结尾
-		str_tmp = str_tmp + "\n" + "#";
-		//更改每条信息的长度的记录
-		std::string str_len = ((int)str_tmp.length() - 1).to_string();
-		str_tmp = str_len + str_tmp.substr(4, str_tmp.length() - 4);
-		char *buffer = file->operator[](file->allocNewNode(block))->Data;
-		strcat(buffer, str_tmp.c_str());
-		//这里没考虑buffer不够的情况。
-		strcat(buffer, str_tmp.c_str());
+
+		file->allocNewNode(block);
 	}
+
+	shared_ptr<Table> findTable(std::string & tableName) {
+		if (!hasTable(tableName)) {
+			throw SQLException("Table not exists!");
+		}
+		FileNode* file = bufferManager.GetFile(TABLE_STRUCT_FILE(tableName));
+		BlockNode* block = file->getblock(0);
+		int p = 0;
+		char* nameBuff = new char[STR_LEN];
+		memcpy(nameBuff, block->Data, STR_LEN);
+		string* name = new string(nameBuff);
+		p += STR_LEN;
+		char* primaryBuff = new char[STR_LEN];
+		memcpy(primaryBuff, block->Data + p, STR_LEN);
+		string* primary = new string(primaryBuff);
+		p += STR_LEN;
+		int size;
+		memcpy(&size, block->Data + p, sizeof(int));
+		p += sizeof(int);
+		vector<Property>* properties = new vector<Property>();
+		for (int i = 0; i < size; i++) {
+			Property* property = new Property;
+			memcpy(property, block->Data + p, sizeof(Property));
+			properties->push_back(*property);
+			p += sizeof(Property);
+		}
+		return make_shared<Table>(*name, *primary, *properties);
+	}
+	
 	void dropTable(Table &table) {
 		if (hasTable(table.tableName)) {
-			bm->DeleteFile(table.tableName + ".struct");
+			bufferManager.DeleteFile(TABLE_STRUCT_FILE(table.tableName));
 		}
 		else {
 			throw SQLException("Table doesn't exist!");
@@ -72,32 +83,35 @@ namespace CM {
 	}
 
 	bool hasIndex(std::string & indexName) {
-		return bm->JudgeFileExistence((indexName + ".index").c_str());
+		return bufferManager.JudgeFileExistence(INDEX_STRUCT_FILE(indexName));
 	}
-	Index& findIndex(std::string & indexName) {
-		if (hasIndex(indexName)) {
+
+	std::shared_ptr<Table> findIndex(std::string & indexName) {
+		/*if (hasIndex(indexName)) {
 
 		}
-		else {
+		else {*/
 			throw SQLException("Index doesn't exist!");
-		}
+		//}
 	}
+
 	void createIndex(Index &index) {
-		if (hasIndex(index.indexName)) {
+	/*	if (hasIndex(index.indexName)) {
 			throw SQLException("");
 		}
 		else {
 			IndexManager *im = new IndexManager(index);
 			im->createNewIndex(index);
-		}
+		}*/
 	}
+
 	void dropIndex(Index &index) {
-		if (hasIndex(index.indexName)) {
+		/*if (hasIndex(index.indexName)) {
 			IndexManager *im = new IndexManager(index);
 			im->dropIndex(index);
 		}
 		else {
 			throw SQLException("");
-		}
+		}*/
 	}
 }
