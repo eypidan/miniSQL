@@ -4,65 +4,55 @@
 
 #include "../include/BufferManager.h"
 
-void CreateStruct_Test();
-void GetStruct_Test();
+void BufferManager_Test();
 
-void DeleteFile_Test();
+void FileNode_Test();
 int main() {
-
-//    CreateStruct_Test();
-//    GetStruct_Test();
-    DeleteFile_Test();
+    srand((unsigned) time(nullptr));
+    BufferManager_Test();
+    FileNode_Test();
     printf("\nTest Finish.\n");
     return 0;
+
 }
 
-void CreateStruct_Test() {
+void BufferManager_Test() {
     BufferManager test;
     int i;
-    BlockNode bn;
-    bn.FileName = "book";
-    auto *testdata = new char[BLOCKSIZE];
-    for (i = 0; i < BLOCKSIZE; i++) {
-        testdata[i] = 50;
-    }
-    bn.Data = testdata;
-    if (test.JudgeStructExistence("book")) {
+    if (test.JudgeFileExistence("testfile")) {
         printf("this table has been existed.");
+        //test.DeleteFile("testfile");
     } else {
-        test.CreateStruct(&bn);
+        test.CreateFile("testfile");
+        FileNode *testfile;
+        testfile = test.GetFile("testfile");
     }
 
 }
 
-void GetStruct_Test() {
-    BufferManager test;
-    BlockNode *x;
-    int count = 0;
-    x = test.GetStruct("book");
-    printf("The information in this struct block is:/n");
-    for (int i = 0; i < 4096; i++) {
-        printf("%02x ", x->Data[i] & 0xff);
-        count = (count + 1) % 11;
-        if (count == 0) printf("\n");
-    }
-}
 
-void DeleteFile_Test() {
+void FileNode_Test() {
     BufferManager test;
-    int i;
-    BlockNode bn;
-    bn.FileName = "deltetable";
-    auto *testdata = new char[BLOCKSIZE];
-    for (i = 0; i < BLOCKSIZE; i++) {
-        testdata[i] = 50;
+    FileNode *testfile;
+    if (test.JudgeFileExistence("testfile")) {
+        testfile = test.GetFile("testfile");
     }
-    bn.Data = testdata;
 
-    if (test.JudgeStructExistence("deltetable")) {
-        printf("this table has been existed.");
-    } else {
-        test.CreateStruct(&bn);
+    //start to test fileNode
+
+    for (int i = 0; i < 30000; i++) {
+        auto BNset = new BlockNode;
+        BNset->Data = new char[BLOCKSIZE];
+        for (int j = 0; j < BLOCKSIZE; j++)
+            BNset->Data[j] = (char) (j % 125);
+        testfile->allocNewNode(BNset);
     }
-    test.DeleteFile("deltetable");
+
+    int rand_num;
+    for (int i = 0; i < 1000; i++) {
+        rand_num = (int) (30000 * rand()) / (RAND_MAX + 1);
+        BlockNode *x;
+        x = testfile->getblock(rand_num);
+    }
+
 }

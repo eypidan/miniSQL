@@ -31,7 +31,7 @@
 #endif // F_OK
 #include <time.h>
 #include "MetaData.h"
-
+#include "Exception.h"
 extern int blockNum;               //use a global varible to record the block number
 using namespace std;
 
