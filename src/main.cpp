@@ -19,8 +19,6 @@ int main() {
 
 		std::vector<Token> tokens = lexer.tokenize();
 
-		/*for (auto itr = tokens.begin(); itr != tokens.end(); itr++)
-			printToken(*itr);*/
 		std::for_each(tokens.begin(), tokens.end(), printToken);
 	}
 
