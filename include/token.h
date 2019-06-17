@@ -7,7 +7,7 @@ namespace Interpreter {
 enum class Symbol {
 	// one-character symbols
 	ASTERISK,
-	SEMI,
+	SEMICOLON,
 	COMMA,
 	LBRACKET,
 	RBRACKET,

@@ -50,7 +50,7 @@ namespace Interpreter {
 
 	static const std::map<Symbol, std::string> strSymbolType{
 		{Symbol::ASTERISK, "*"},
-		{Symbol::SEMI, ";"},
+		{Symbol::SEMICOLON, ";"},
 		{Symbol::COMMA, ","},
 		{Symbol::LBRACKET, "("},
 		{Symbol::RBRACKET, ")"},

@@ -36,7 +36,6 @@ namespace Interpreter {
 	bool Lexer::getNextLine()
 	{
 		if (std::getline(srcText, currLine)) {
-			//currLine += '\n';
 			lineNum++;
 			colNum = 1;
 			pos = currLine.begin();
@@ -52,7 +51,6 @@ namespace Interpreter {
 
 	Token Lexer::getNextToken()
 	{
-		
 		// read past and ignore any whitespace characters
 		skipSpaces();
 		if (pos == currLine.end()) {
@@ -70,7 +68,7 @@ namespace Interpreter {
 		}
 		else if (*pos == ';') {
 			skipChars(1);
-			return Token(Symbol::SEMI, currLineNum, currColNum);
+			return Token(Symbol::SEMICOLON, currLineNum, currColNum);
 		}
 		else if (*pos == ',') {
 			skipChars(1);
