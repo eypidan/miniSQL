@@ -44,7 +44,8 @@ public:
 struct Property {
 	Type &type;
 	std::string &name;
-	Property(Type &type, std::string &name) : type(type), name(name) {}
+	bool isUnique;
+	Property(Type &type, std::string &name, bool isUnique) : type(type), name(name), isUnique(isUnique) {}
 };
 
 class Value {
