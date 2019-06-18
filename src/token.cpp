@@ -1,6 +1,7 @@
 #include "token.h"
 #include <iostream>
 #include <map>
+#include <iomanip>
 
 namespace Interpreter {
 	Token::Token(const Symbol & sv, const int ln, const int cn)
@@ -71,29 +72,32 @@ namespace Interpreter {
 
 	void printToken(Token & token)
 	{
-		std::cout << token.lineNum << " \t"
-			<< token.colNum << " \t"
-			<< mapTokenTypeToString(token.type) << " \t";
+		std::cout << std::left << std::setw(15)
+			<< token.lineNum
+			<< std::left << std::setw(15)
+			<< token.colNum
+			<< std::left << std::setw(15)
+			<< mapTokenTypeToString(token.type);
 
 		switch (token.type)
 		{
 		case TokenType::SYMBOL:
-			std::cout << mapSymbolToString(token.value.svalue);
+			std::cout << std::left << std::setw(15) << mapSymbolToString(token.value.svalue);
 			break;
 		case TokenType::KEYWORD:
-			std::cout << mapKeywordToString(token.value.kvalue);
+			std::cout << std::left << std::setw(15) << mapKeywordToString(token.value.kvalue);
 			break;
 		case TokenType::INTEGER:
-			std::cout << token.value.intvalue;
+			std::cout << std::left << std::setw(15) << token.value.intvalue;
 			break;
 		case TokenType::FLOAT:
-			std::cout << token.value.fvalue;
+			std::cout << std::left << std::setw(15) << token.value.fvalue;
 			break;
 		case TokenType::IDENTIFIER:
-			std::cout << token.value.strvalue;
+			std::cout << std::left << std::setw(15) << token.value.strvalue;
 			break;
 		case TokenType::STRING:
-			std::cout << token.value.strvalue;
+			std::cout << std::left << std::setw(15) << token.value.strvalue;
 			break;
 		default:
 			break;

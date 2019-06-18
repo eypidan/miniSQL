@@ -4,7 +4,7 @@
 #include <memory>
 
 enum BaseType { 
-	INT, 
+	INT,
 	FLOAT, 
 	CHAR 
 };
@@ -18,6 +18,8 @@ public:
 	Type(BaseType baseType, size_t charSize = 0) {
 		setType(baseType, charSize);
 	}
+
+	Type(const Type & that) : baseType(that.baseType), size(that.size) {}
 
 	inline void setType(BaseType baseType, size_t charSize = 0) {
 		switch (baseType) {
@@ -57,7 +59,7 @@ public:
 	Value(Type &type, const void *val) : type(type) {
 		setConst(val);
 	}
-	Value(Value & that) : type(that.type), val(that.val) {}
+	Value(const Value & that) : type(that.type), val(that.val) {}
 	template<typename T>
 	inline T* getAsType() const {
 		return reinterpret_cast<T*>(val);

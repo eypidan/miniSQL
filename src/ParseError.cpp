@@ -14,7 +14,8 @@ namespace Interpreter {
 		return s.str();
 	}
 
-	ParseError::ParseError(const std::string & msg, const int ln, const int cn) : std::runtime_error(errMsg(msg, ln, cn)) {
+	ParseError::ParseError(const std::string & msg, const int ln, const int cn) 
+		: std::runtime_error(errMsg(msg, ln, cn)) {
 	};
 }
 
