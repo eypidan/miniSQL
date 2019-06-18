@@ -1,6 +1,6 @@
 #include "Parser.h"
 #include "ParseError.h"
-#include "..\include\Parser.h"
+#include "Parser.h"
 #include <sstream>
 
 namespace Interpreter {
@@ -282,7 +282,7 @@ namespace Interpreter {
 			throw ParseError(msg, -1, -1);
 		}
 		else {
-			throw ParseError(msg, itr->getlineNum, itr->getcolNum);
+			throw ParseError(msg, itr->getlineNum(), itr->getcolNum());
 		}
 	}
 
