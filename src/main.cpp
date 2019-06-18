@@ -8,7 +8,7 @@
 
 using namespace Interpreter;
 
-int main() {
+void testLexer() {
 	std::ifstream fin(IFILENAME);
 	if (!fin) {
 		std::cout << "FILE ERROR" << std::endl;
@@ -21,7 +21,15 @@ int main() {
 
 		std::for_each(tokens.begin(), tokens.end(), printToken);
 	}
+}
 
+void testAST(){
+
+}
+int main() {
+	
+	testLexer();
+	testAST();
 
 	return 0;
 }
