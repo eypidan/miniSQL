@@ -192,6 +192,7 @@ void FileNode::synchronize() {   //write dirty block to disk
         auto item = *iter;
         if (item->dirty) {
             this->writeBack(item->offset, item->Data);
+			item->dirty = false;
         }
         iter++;
     }
@@ -200,6 +201,7 @@ void FileNode::synchronize() {   //write dirty block to disk
         auto item = *iter;
         if (item->dirty) {
             this->writeBack(item->offset, item->Data);
+			item->dirty = false;
         }
         iter++;
     }

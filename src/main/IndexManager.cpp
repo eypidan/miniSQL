@@ -3,7 +3,7 @@
 
 int strcmp(const char *str1, const char *str2)
 {
-	while (*str1 == *str2){
+	while (*str1 == *str2) {
 		if (*str1 == '\0') return 0;
 		str1++;
 		str2++;
@@ -11,7 +11,7 @@ int strcmp(const char *str1, const char *str2)
 	return *str1 - *str2;
 }
 
-struct CharWrapper 
+struct CharWrapper
 {
 	char content[255];
 	CharWrapper() = default;
@@ -27,6 +27,7 @@ struct CharWrapper
 	bool operator <=(const CharWrapper& another) { return strcmp(content, another.content) <= 0; }
 	bool operator >=(const CharWrapper& another) { return strcmp(content, another.content) >= 0; }
 	bool operator ==(const CharWrapper& another) { return strcmp(content, another.content) == 0; }
+	bool operator !=(const CharWrapper& another) { return strcmp(content, another.content) != 0; }
 	friend ostream & operator<<(ostream & os, const CharWrapper & c) {
 		std::string s(c.content);
 		os << s;
@@ -36,7 +37,7 @@ struct CharWrapper
 
 IndexManager::IndexManager(Index& index) : _index(index)
 {
-	Table table = CM::findTable(index.tableName);
+	auto table = CM::findTable(index.tableName);
 	vector<Property> properties;
 	/*// for test
 	std::string a = "a";
@@ -58,13 +59,13 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	Table table(index.tableName, a, properties);*/
 	// Find property
 	int i;
-	for (i = 0; i < table.properties.size(); i++) {
-		if (table.properties[i].name == index.propertyName) {
-			property = new Property(table.properties[i]);
+	for (i = 0; i < table->properties.size(); i++) {
+		if (table->properties[i].name == index.propertyName) {
+			property = new Property(table->properties[i]);
 			break;
 		}
 	}
-	if (i == table.properties.size()) {
+	if (i == table->properties.size()) {
 		throw SQLException("Index " + index.indexName + ".property: " + index.propertyName + "not found in table: " + index.tableName + "!");
 	}
 	treeFile = bufferManager.GetFile(index.indexName + ".index");
@@ -87,7 +88,7 @@ IndexManager::IndexManager(Index& index) : _index(index)
 	}
 }
 
-IndexManager::~IndexManager() 
+IndexManager::~IndexManager()
 {
 	delete property;
 }
@@ -102,27 +103,27 @@ void IndexManager::createTree(int rootIndex)
 		block->dirty = true;
 	}
 	tree = new BPlusTree<T, size>(
-		root, 
+		root,
 		[=](int id) { // get child
-			BlockNode* node = treeFile->getblock(id);
-			return (INode<T, size>*) node->Data;
-		}, [=](auto node) { // modify
-			BlockNode* block = treeFile->getblock(node->id);
-			block->dirty = true;
-		}, [=](auto node) { // delete
-			// nothing to do
-		}, [=]() { // create
-			BlockNode* newBlock = new BlockNode;
-			newBlock->Data = new char[BLOCKSIZE];
-			auto treeNode = (INode<T, size>*) newBlock->Data;
-			treeNode->id = treeFile->allocNewNode(newBlock);
-			newBlock->dirty = true;
-			return treeNode;
-		}, [=](auto newRootId) { // root change
-			BlockNode* block = treeFile->getblock(0);
-			memcpy(block->Data, &newRootId, sizeof(int));
-			block->dirty = true;
-		});
+		BlockNode* node = treeFile->getblock(id);
+		return (INode<T, size>*) node->Data;
+	}, [=](auto node) { // modify
+		BlockNode* block = treeFile->getblock(node->id);
+		block->dirty = true;
+	}, [=](auto node) { // delete
+		// nothing to do
+	}, [=]() { // create
+		BlockNode* newBlock = new BlockNode;
+		newBlock->Data = new char[BLOCKSIZE];
+		auto treeNode = (INode<T, size>*) newBlock->Data;
+		treeNode->id = treeFile->allocNewNode(newBlock);
+		newBlock->dirty = true;
+		return treeNode;
+	}, [=](auto newRootId) { // root change
+		BlockNode* block = treeFile->getblock(0);
+		memcpy(block->Data, &newRootId, sizeof(int));
+		block->dirty = true;
+	});
 }
 
 void IndexManager::insertEntry(Value* newValue, int indexInRecord)
@@ -224,9 +225,7 @@ std::shared_ptr<IndexIterator> IndexManager::findMinOrMax(bool min)
 
 void IndexManager::createNewIndex(Index& index)
 {
-	// TODO: Need to test !!!!
 	std::string fileName = index.indexName + ".index";
-	BufferManager bufferManager;
 	if (bufferManager.JudgeFileExistence(fileName)) {
 		throw SQLException("index: " + fileName + " has already existed!");
 	}
@@ -254,9 +253,15 @@ void IndexManager::createNewIndex(Index& index)
 void IndexManager::dropIndex(Index& index)
 {
 	std::string fileName = index.indexName + ".index";
-	BufferManager bufferManager;
 	bufferManager.DeleteFile(fileName);
 }
+
+bool IndexManager::hasIndex(std::string indexName)
+{
+	std::string fileName = indexName + ".index";
+	return bufferManager.JudgeFileExistence(fileName);
+}
+
 
 void IndexManager::printTree() const
 {
@@ -284,7 +289,7 @@ template<typename T>
 std::shared_ptr<IndexIterator> IndexManager::generateIterator(LeafPosition<T, BLOCKSIZE>* position)
 {
 	auto re = std::make_shared<IndexIterator>();
-	re->leafPosition = (void*) position;
+	re->leafPosition = (void*)position;
 	re->currentValue = new Value(property->type, (void*)&position->node->value[position->position]);
 	re->indexInRecord = position->node->pointers[position->position];
 	re->indexManager = this;

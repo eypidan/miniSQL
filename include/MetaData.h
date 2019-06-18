@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cstring>
+#include "Exception.h"
 
 enum BaseType { 
 	INT, 
@@ -15,11 +17,14 @@ private:
 	size_t size;
 public:
 
+	Type() = default;
+
 	Type(BaseType baseType, size_t charSize = 0) {
 		setType(baseType, charSize);
 	}
 
 	inline void setType(BaseType baseType, size_t charSize = 0) {
+		this->baseType = baseType;
 		switch (baseType) {
 			case BaseType::INT:
 				size = sizeof(int);
@@ -39,23 +44,34 @@ public:
 	inline BaseType getBaseType() const {
 		return baseType;
 	}
+
+	bool operator==(const Type &rhs) const {
+		return baseType == rhs.baseType && size == rhs.size;
+	}
+
+	bool operator!=(const Type &rhs) const {
+		return !(rhs == *this);
+	}
 };
 
 struct Property {
-	Type &type;
-	std::string &name;
+	Type type;
+	char name[64];
 	bool unique;
-	Property(Type &type, bool unique, std::string &name) : type(type),unique(unique),name(name) {}
+	Property() {}
+	Property(Type type, bool unique, std::string &name) : type(type),unique(unique) {
+		strcpy(this->name, name.c_str());
+	}
 };
 
 class Value {
 private:
-	Type &type;
+	Type type;
 	void *val;
 public:
-        Value(){}
-	Value(Type &type, void *val) : type(type), val(val) {}
-	Value(Type &type, const void *val) : type(type) {
+
+	Value(Type type, void *val) : type(type), val(val) {}
+	Value(Type type, const void *val) : type(type) {
 		setConst(val);
 	}
 	
@@ -76,7 +92,7 @@ public:
 		this->type = type;
 	}
 
-	inline Type& getType() const {
+	inline Type getType() const {
 		return type;
 	}
 
@@ -90,9 +106,9 @@ public:
 		}
 		switch (type.getBaseType()) {
 		case BaseType::INT:
-			return (int*)val < (int*)rhs.val;
+			return *(int*)val < *(int*)rhs.val;
 		case BaseType::FLOAT:
-			return (float*)val < (float*)rhs.val;
+			return *(float*)val < *(float*)rhs.val;
 		case BaseType::CHAR:
 			return std::strcmp((char*)val, (char*)rhs.val) < 0;
 		}
@@ -104,9 +120,9 @@ public:
 		}
 		switch (type.getBaseType()) {
 		case BaseType::INT:
-			return (int*)val == (int*)rhs.val;
+			return *(int*)val == *(int*)rhs.val;
 		case BaseType::FLOAT:
-			return (float*)val == (float*)rhs.val;
+			return *(float*)val == *(float*)rhs.val;
 		case BaseType::CHAR:
 			return std::strcmp((char*)val, (char*)rhs.val) == 0;
 		}
@@ -145,4 +161,4 @@ struct Index {
 		: indexName(indexName), tableName(tableName), propertyName(propertyName) {}
 };
 
-typedef std::vector<std::vector<Value>> View;
+typedef std::vector<std::shared_ptr<std::vector<Value>>> View;

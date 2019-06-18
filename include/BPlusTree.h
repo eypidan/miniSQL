@@ -37,10 +37,10 @@ public:
 	BPlusTree(TEMP_NODE* root, std::function<TEMP_NODE*(int)> getChildFunc,
 		std::function<void(TEMP_NODE*)> modifyNodeFunc,
 		std::function<void(TEMP_NODE*)> deleteNodeFunc,
-		std::function<TEMP_NODE*(void)> createNodeFunc, 
+		std::function<TEMP_NODE*(void)> createNodeFunc,
 		std::function<void(int)> onRootChangeFunc)
 		: _root(root), _getChildFunc(getChildFunc), _modifyNodeFunc(modifyNodeFunc),
-		_deleteNodeFunc(deleteNodeFunc), _createNodeFunc(createNodeFunc), _onRootChangeFunc(onRootChangeFunc){
+		_deleteNodeFunc(deleteNodeFunc), _createNodeFunc(createNodeFunc), _onRootChangeFunc(onRootChangeFunc) {
 	}
 	TEMP_POSITION* find(T& value);
 	TEMP_POSITION* findExtreme(bool isMax);
@@ -102,17 +102,18 @@ TEMP_POSITION* TEMP_TREE::findExtreme(bool isMax)
 TEMP_DEF
 void TEMP_TREE::insert(T& value, int pointer)
 {
-	auto result = find(value);
+	T current = value;
+	auto result = find(current);
 	TEMP_NODE* node = result->node;
 	while (true) {
 		if (node->contentSize < M) {
 			int rightP = node->pointers[node->contentSize];
 			int i;
-			for (i = node->contentSize; i >= 1 && node->value[i - 1] > value; i--) {
+			for (i = node->contentSize; i >= 1 && node->value[i - 1] > current; i--) {
 				node->value[i] = node->value[i - 1];
 				node->pointers[i] = node->pointers[i - 1];
 			}
-			node->value[i] = value;
+			node->value[i] = current;
 			node->pointers[i] = pointer;
 			node->contentSize++;
 			if (node->isInternal) {
@@ -138,8 +139,8 @@ void TEMP_TREE::insert(T& value, int pointer)
 			int pointersContainer[M + 1];
 			int i, j;
 			for (i = 0, j = 0; i < M; i++, j++) {
-				if (node->value[i] > value && j == i) {
-					container[j] = value;
+				if (node->value[i] > current && j == i) {
+					container[j] = current;
 					pointersContainer[j] = pointer;
 					j++;
 				}
@@ -147,7 +148,7 @@ void TEMP_TREE::insert(T& value, int pointer)
 				pointersContainer[j] = node->pointers[i];
 			}
 			if (j == i) {
-				container[j] = value;
+				container[j] = current;
 				pointersContainer[j] = pointer;
 			}
 			int leftSize = (M + 1) / 2;
@@ -182,7 +183,7 @@ void TEMP_TREE::insert(T& value, int pointer)
 				auto point = _stack.back();
 				_stack.pop_back();
 				node = point->node;
-				value = middle;
+				current = middle;
 				pointer = newNode->id;
 			}
 		}
@@ -192,9 +193,9 @@ void TEMP_TREE::insert(T& value, int pointer)
 TEMP_DEF
 bool TEMP_TREE::del(T& value)
 {
-	auto result = find(value);
+	TEMP_POSITION* result = find(value);
 	TEMP_NODE* node = result->node;
-	if (result->position >= node->contentSize) {
+	if (node->value[result->position] != value) {
 		throw SQLException("Value not found in index");
 	}
 	// delete array

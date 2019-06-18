@@ -28,18 +28,14 @@ int main()
 	Type type(BaseType::INT, 7);
 	// test add
 	for (int i = 0; i < 10000; i++) {
-		int j = i;
-		//char data[7];
-		//generateString(data, i);
-		Value value(type, &j);
+		Value value(type, &i);
 		manager.insertEntry(&value, i + 1000);
 	}
 	manager.printTree();
 	// test delete
 	cout << "begin delete: ";
 	for (int i = 0; i < 520; i += 2) {
-		int j = i;
-		Value value(type, &j);
+		Value value(type, &i);
 		manager.deleteEntry(&value);
 	}
 	// test disk

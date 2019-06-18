@@ -1,17 +1,27 @@
 #pragma once
 #include <string>
+#include <memory>
+#include <map>
 #include "MetaData.h"
 
 namespace CM {
 
 	bool hasTable(std::string & tableName);
-	Table& findTable(std::string & tableName);
-	void createTable(std::string name, vector<Property> &properties, int primary, vector<Index> index);
+	std::shared_ptr<Table> findTable(std::string & tableName);
+	void createTable(Table &table);
 	void dropTable(Table &table);
 
 	bool hasIndex(std::string & indexName);
-	Index& findIndex(std::string & indexName);
+	Index* findIndexByName(std::string & indexName);
+	Index* findIndexByTable(std::string & tableName, std::string & propertyName);
 	void createIndex(Index &index);
 	void dropIndex(Index &index);
 
+	void updateIndexCache();
+	void ensureIndexFile();
+
+	// indexName -> position in file
+	static std::map<std::string, int> indexPositionCache;
+	// indexName -> Index*
+	static std::map<std::string, Index*> indexCache;
 }
