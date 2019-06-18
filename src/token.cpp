@@ -39,85 +39,67 @@ namespace Interpreter {
 		colNum = cn;
 	}
 
-	static const std::map<TokenType, std::string> strTokenType{
-		{TokenType::SYMBOL, "Symbol"},
-		{TokenType::KEYWORD, "Keyword"},
-		{TokenType::IDENTIFIER, "Identifier"},
-		{TokenType::INTEGER, "Integer"},
-		{TokenType::FLOAT, "Float"},
-		{TokenType::STRING, "String"}
+	static const char *symbols[] = { 
+		"*",  ";",  ",", "(",  ")", "<",
+		">", "=", "<=", ">=", "<>" 
 	};
 
-	static const std::map<Symbol, std::string> strSymbolType{
-		{Symbol::ASTERISK, "*"},
-		{Symbol::SEMICOLON, ";"},
-		{Symbol::COMMA, ","},
-		{Symbol::LBRACKET, "("},
-		{Symbol::RBRACKET, ")"},
-		{Symbol::PLUS, "+"},
-		{Symbol::LT, "<"},
-		{Symbol::GT, ">"},
-		{Symbol::EQ, "="},
-		{Symbol::LEQ, "<="},
-		{Symbol::GEQ, ">="},
-		{Symbol::NEQ, "!="}
+	static const char *keywords[] = {
+		"and",     "char",  "create", "delete", "drop",   "execfile", "float",
+		"from",    "index", "insert", "int",    "into",   "key",      "on",
+		"primary", "quit",  "select", "table",  "unique", "values",   "where" 
 	};
 
-	static const std::map<Keyword, std::string> strKeywordType{
-		{Keyword::AND, "and"},
-		{Keyword::CHAR, "char"},
-		{Keyword::CREATE, "create"},
-		{Keyword::DELETE, "delete"},
-		{Keyword::DROP, "drop"},
-		{Keyword::EXECFILE, "execfile"},
-		{Keyword::FLOAT, "float"},
-		{Keyword::FROM, "from"},
-		{Keyword::INDEX, "index"},
-		{Keyword::INSERT, "insert"},
-		{Keyword::INT, "int"},
-		{Keyword::INTO, "into"},
-		{Keyword::KEY, "key"},
-		{Keyword::ON, "on"},
-		{Keyword::PRIMARY, "primary"},
-		{Keyword::QUIT, "quit"},
-		{Keyword::SELECT, "select"},
-		{Keyword::TABLE, "table"},
-		{Keyword::UNIQUE, "unique"},
-		{Keyword::VALUES, "values"},
-		{Keyword::WHERE, "where"}
+	static const char *tokentypes[] = {
+		"symbol", "keyword", "identifier", "integer", "float", "string"
 	};
+	
+	const char * mapKeywordToString(const Keyword & k)
+	{
+		return keywords[static_cast<int>(k)];
+	}
+
+	const char * mapSymbolToString(const Symbol & s)
+	{
+		return symbols[static_cast<int>(s)];
+	}
+
+	const char * mapTokenTypeToString(const TokenType & t)
+	{
+		return tokentypes[static_cast<int>(t)];
+	}
 
 	void printToken(Token & token)
 	{
 		std::cout << token.lineNum << " \t"
 			<< token.colNum << " \t"
-			<< strTokenType.find(token.type)->second << " \t";
+			<< mapTokenTypeToString(token.type) << " \t";
 
 		switch (token.type)
 		{
-			case TokenType::SYMBOL:
-				std::cout << strSymbolType.find(token.value.svalue)->second;
-				break;
-			case TokenType::KEYWORD:
-				std::cout << strKeywordType.find(token.value.kvalue)->second;
-				break;
-			case TokenType::INTEGER:
-				std::cout << token.value.intvalue;
-				break;
-			case TokenType::FLOAT:
-				std::cout << token.value.fvalue;
-				break;
-			case TokenType::IDENTIFIER:
-				std::cout << token.value.strvalue;
-				break;
-			case TokenType::STRING:
-				std::cout << token.value.strvalue;
-				break;
+		case TokenType::SYMBOL:
+			std::cout << mapSymbolToString(token.value.svalue);
+			break;
+		case TokenType::KEYWORD:
+			std::cout << mapKeywordToString(token.value.kvalue);
+			break;
+		case TokenType::INTEGER:
+			std::cout << token.value.intvalue;
+			break;
+		case TokenType::FLOAT:
+			std::cout << token.value.fvalue;
+			break;
+		case TokenType::IDENTIFIER:
+			std::cout << token.value.strvalue;
+			break;
+		case TokenType::STRING:
+			std::cout << token.value.strvalue;
+			break;
 		default:
 			break;
 		}
 
-		std::cout << '\n';
+		std::cout << std::endl;
 	}
 
 	TokenType Token::getType() {

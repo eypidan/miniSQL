@@ -11,8 +11,6 @@ enum class Symbol {
 	COMMA,
 	LBRACKET,
 	RBRACKET,
-	PLUS,
-	MINUS,
 	LT,
 	GT,
 	EQ,
@@ -64,6 +62,7 @@ struct TokenValue {
 	float fvalue;
 };
 
+
 class Token
 {
 public:
@@ -84,5 +83,10 @@ private:
 	TokenValue value;
 	int lineNum, colNum;
 };
+
+
+const char *mapKeywordToString(const Keyword &);
+const char *mapSymbolToString(const Symbol &);
+const char *mapTokenTypeToString(const TokenType &);
 
 }
