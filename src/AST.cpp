@@ -1,13 +1,15 @@
 #include "AST.h"
-#include "..\include\Api.h"
-#include "..\include\Exception.h"
+#include "Api.h"
+#include "Exception.h"
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
 
+
+
 namespace Interpreter {
 
-	void AST::CreateTableStatement::callAPI()
+	/*void AST::CreateTableStatement::callAPI() 
 	{
 		Table table(tableName, primaryKey, properties);
 		
@@ -20,7 +22,20 @@ namespace Interpreter {
 		else {
 			throw SQLException("Create Table fails: " + res.errorMessage);
 		}
-		
+	}*/
+
+	void AST::CreateTableStatement::printStatement()
+	{
+		std::cout << "CREATE TABLE" << std::endl;
+		std::cout << "\t " << tableName << std::endl;
+		std::cout << "\t " << primaryKey << std::endl;
+		for (auto property : properties) {
+			std::cout << "\t "
+				<< property.name
+				<< property.isUnique
+				<< std::endl;
+		}
+
 	}
 
 	void AST::CreateTableStatement::setTableName(std::string & s)
@@ -33,7 +48,7 @@ namespace Interpreter {
 		primaryKey = s;
 	}
 
-	void AST::CreateTableStatement::addProperty(Property & p)
+	void AST::CreateTableStatement::addProperty(const Property & p)
 	{
 		properties.push_back(p);
 	}
@@ -43,7 +58,7 @@ namespace Interpreter {
 		tableName = s;
 	}
 
-	void AST::DropStatement::callAPI()
+	/*void AST::DropStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::dropTable(tableName);
 		if (res.isSuccess) {
@@ -54,13 +69,17 @@ namespace Interpreter {
 		else {
 			throw SQLException("Drop Table fails: " + res.errorMessage);
 		}
-		
+	}*/
+
+	void AST::DropStatement::printStatement()
+	{
+		std::cout << "DROP TABLE" << std::endl;
+		std::cout << "\t " << tableName << std::endl;
 	}
 
-	void AST::CreateIndexStatement::callAPI()
+	/*void AST::CreateIndexStatement::callAPI()
 	{
 		Index index(indexName, tableName, propertyName);
-
 		API::SQLResult<void> res = API::createIndex(index);
 		if (res.isSuccess) {
 			std::cout << "Index \'" << indexName
@@ -71,6 +90,14 @@ namespace Interpreter {
 		else {
 			throw SQLException("Create Index fails: " + res.errorMessage);
 		}
+	}*/
+
+	void AST::CreateIndexStatement::printStatement()
+	{
+		std::cout << "CREATE INDEX" << std::endl;
+		std::cout << "\t " << indexName << std::endl;
+		std::cout << "\t " << tableName << std::endl;
+		std::cout << "\t " << indexName << std::endl;
 	}
 
 	void AST::CreateIndexStatement::setIndexName(std::string & s) {
@@ -93,18 +120,24 @@ namespace Interpreter {
 		indexName = s;
 	}
 
-	void AST::DropIndexStatement::callAPI()
+	/*void AST::DropIndexStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::dropIndex(indexName);
 
 		if (res.isSuccess) {
-			std::cout << "Index \'" << indexName 
-				<< "\' dropped successfully in " << res.durationMS 
+			std::cout << "Index \'" << indexName
+				<< "\' dropped successfully in " << res.durationMS
 				<< " ms" << std::endl;
 		}
 		else {
 			throw SQLException("Drop Index fails: " + res.errorMessage);
 		}
+	}*/
+
+	void AST::DropIndexStatement::printStatement()
+	{
+		std::cout << "DROP INDEX" << std::endl;
+		std::cout << "\t " << indexName << std::endl;
 	}
 
 	void DrawSymbol(int n, char c) {
@@ -128,108 +161,142 @@ namespace Interpreter {
 		tableName = s;
 	}
 
-	void AST::SelectStatement::callAPI()
+	//void AST::SelectStatement::callAPI()
+	//{
+	//	API::SQLResult<std::pair<View, Table>> res = API::select(properties, tableName, predicates);
+	//	if (res.isSuccess) {
+	//		View v = res.result->first;
+	//		int tupleCnt = v.size();
+	//		if (tupleCnt == 0) {
+	//			std::cout << "No record selected." << std::endl;
+	//			return;
+	//		}
+
+	//		Table t = res.result->second;
+	//		int attrCnt = t.properties.size();
+
+	//		// calculate the maxWidth of each column
+	//		std::vector<int> maxWidth(attrCnt, 0);
+	//		for (int i = 0; i < attrCnt; i++) {
+	//			maxWidth[i] = std::max(maxWidth[i], (int)t.properties[i].name.size());
+	//		}
+
+	//		for (int i = 0; i < tupleCnt; i++) {
+	//			for (int j = 0; j < attrCnt; j++) {
+	//				Value *val = &v[i][j];
+	//				Type *type = &(val->getType());
+
+	//				switch (type->getBaseType())
+	//				{
+	//				case BaseType::INT:
+	//					maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<int>())));
+	//				case BaseType::FLOAT:
+	//					maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<float>())));
+	//				case BaseType::CHAR:
+	//					maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<char>())));
+	//				default:
+	//					break;
+	//				}
+	//			}
+	//		}
+
+	//		// Draw output table
+	//		for (int i = 0; i < attrCnt; i++) {
+	//			std::cout << "+";
+	//			DrawSymbol(maxWidth[i] + 2, '-');
+	//		}
+	//		std::cout << "+";
+	//		std::cout << std::endl;
+
+	//		for (int i = 0; i < attrCnt; i++) {
+	//			std::cout << "|"
+	//				<< std::setw(maxWidth[i] + 2)
+	//				<< t.properties[i].name;
+	//		}
+	//		std::cout << "|" << std::endl;
+
+	//		for (int i = 0; i < attrCnt; i++) {
+	//			std::cout << "+";
+	//			DrawSymbol(maxWidth[i] + 2, '-');
+	//		}
+	//		std::cout << "+";
+	//		std::cout << std::endl;
+
+	//		for (int i = 0; i < tupleCnt; i++) {
+	//			for (int j = 0; j < attrCnt; j++) {
+	//				Value *val = &v[i][j];
+	//				Type *t = &(val->getType());
+	//				switch (t->getBaseType())
+	//				{
+	//				case BaseType::INT:
+	//					std::cout << "|"
+	//						<< std::setw(maxWidth[j] + 2)
+	//						<< *(val->getAsType<int>());
+	//				case BaseType::FLOAT:
+	//					std::cout << "|"
+	//						<< std::setw(maxWidth[j] + 2)
+	//						<< *(val->getAsType<float>());
+	//				case BaseType::CHAR:
+	//					std::cout << "|"
+	//						<< std::setw(maxWidth[j] + 2)
+	//						<< *(val->getAsType<char>());
+	//				default:
+	//					break;
+	//				}
+
+	//			}
+	//		}
+
+	//		std::cout << "|" << std::endl;
+
+	//		for (int i = 0; i < attrCnt; i++) {
+	//			std::cout << "+";
+	//			DrawSymbol(maxWidth[i] + 2, '-');
+	//		}
+	//		std::cout << "+";
+	//		std::cout << std::endl;
+
+	//		std::cout << tupleCnt << " rows in set (" << res.durationMS << " ms)";
+	//	}
+	//	else {
+	//		throw SQLException("Select fails: " + res.errorMessage);
+	//	}
+	//}
+
+	void AST::SelectStatement::printStatement()
 	{
-		API::SQLResult<std::pair<View, Table>> res = API::select(properties, tableName, predicates);
-		if (res.isSuccess) {
-
-			View v = res.result->first;
-			int tupleCnt = v.size();
-			if (tupleCnt == 0) {
-				std::cout << "No record selected." << std::endl;
-				return;
-			}
-			
-			Table t = res.result->second;
-			int attrCnt = t.properties.size();
-			
-			// calculate the maxWidth of each column
-			std::vector<int> maxWidth(attrCnt, 0);
-			for (int i = 0; i < attrCnt; i++) {
-				maxWidth[i] = std::max(maxWidth[i], (int)t.properties[i].name.size());
-			}
-
-			for (int i = 0; i < tupleCnt; i++) {
-				for (int j = 0; j < attrCnt; j++) {
-					Value & val = v[i][j];
-					Type & type = val.getType();
-
-					switch (type.getBaseType)
-					{
-					case BaseType::INT:
-						maxWidth[j] = std::max(maxWidth[j], getLength(*(val.getAsType<int>())));
-					case BaseType::FLOAT:
-						maxWidth[j] = std::max(maxWidth[j], getLength(*(val.getAsType<float>())));
-					case BaseType::CHAR:
-						maxWidth[j] = std::max(maxWidth[j], getLength(*(val.getAsType<char>())));
-					default:
-						break;
-					}
-
-					
-				}
-			}
-			
-			// Draw output table
-			for (int i = 0; i < attrCnt; i++) {
-				std::cout << "+";
-				DrawSymbol(maxWidth[i] + 2, '-');
-			}
-			std::cout << "+";
-			std::cout << std::endl;
-
-			for (int i = 0; i < attrCnt; i++) {
-				std::cout << "|"
-					<< std::setw(maxWidth[i] + 2)
-					<< t.properties[i].name;
-			}
-			std::cout << "|" << std::endl;
-
-			for (int i = 0; i < attrCnt; i++) {
-				std::cout << "+";
-				DrawSymbol(maxWidth[i] + 2, '-');
-			}
-			std::cout << "+";
-			std::cout << std::endl;
-
-			for (int i = 0; i < tupleCnt; i++) {
-				for (int j = 0; j < attrCnt; j++) {
-					Value & val = v[i][j];
-					Type & t = v[i][j].getType();
-					switch (t.getBaseType())
-					{
-					case BaseType::INT:
-						std::cout << "|"
-							<< std::setw(maxWidth[j] + 2)
-							<< *(val.getAsType<int>());
-					case BaseType::FLOAT:
-						std::cout << "|"
-							<< std::setw(maxWidth[j] + 2)
-							<< *(val.getAsType<float>());
-					case BaseType::CHAR:
-						std::cout << "|"
-							<< std::setw(maxWidth[j] + 2)
-							<< *(val.getAsType<char>());
-					default:
-						break;
-					}
-					
-				}
-			}
-
-			std::cout << "|" << std::endl;
-
-			for (int i = 0; i < attrCnt; i++) {
-				std::cout << "+";
-				DrawSymbol(maxWidth[i] + 2, '-');
-			}
-			std::cout << "+";
-			std::cout << std::endl;
-
-			std::cout << tupleCnt << " rows in set (" << res.durationMS << " ms)";
+		std::cout << "SELECT" << std::endl;
+		for (auto property : properties) {
+			std::cout << "\t "
+				<< property
+				<< std::endl;
 		}
-		else {
-			throw SQLException("Select fails: " + res.errorMessage);
+		std::cout << "\t " << tableName << std::endl;
+		for (auto predicate : predicates) {
+			std::cout << "\t "
+				<< std::setw(31)
+				<< predicate.propertyName
+				<< predicate.op;
+			switch (predicate.val.getType().getBaseType())
+			{
+			case BaseType::INT:
+				std::cout << std::setw(31)
+					<< predicate.val.getAsType<int>()
+					<< std::endl;
+				break;
+			case BaseType::FLOAT:
+				std::cout << std::setw(31)
+					<< predicate.val.getAsType<float>()
+					<< std::endl;
+				break;
+			case BaseType::CHAR:
+				std::cout << std::setw(31)
+					<< predicate.val.getAsType<char>()
+					<< std::endl;
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -243,7 +310,7 @@ namespace Interpreter {
 		values.push_back(v);
 	}
 
-	void AST::InsertStatement::callAPI()
+	/*void AST::InsertStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::insert(tableName, values);
 		if (res.isSuccess) {
@@ -253,6 +320,34 @@ namespace Interpreter {
 		}
 		else {
 			throw SQLException("Insert Value fails: " + res.errorMessage);
+		}
+	}*/
+
+	void AST::InsertStatement::printStatement()
+	{
+		std::cout << "INSERT" << std::endl;
+
+		for (auto value : values) {
+			switch (value.getType().getBaseType())
+			{
+			case BaseType::INT:
+				std::cout << "\t "
+					<< value.getAsType<int>()
+					<< std::endl;
+				break;
+			case BaseType::FLOAT:
+				std::cout << "\t "
+					<< value.getAsType<float>()
+					<< std::endl;
+				break;
+			case BaseType::CHAR:
+				std::cout << "\t "
+					<< value.getAsType<char>()
+					<< std::endl;
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -266,7 +361,7 @@ namespace Interpreter {
 		predicates.push_back(p);
 	}
 
-	void AST::DeleteStatement::callAPI()
+	/*void AST::DeleteStatement::callAPI()
 	{
 		API::SQLResult<int> res = API::deleteFrom(tableName, predicates);
 		if (res.isSuccess) {
@@ -277,11 +372,48 @@ namespace Interpreter {
 		else {
 			throw SQLException("Delete Value fails: " + res.errorMessage);
 		}
+	}*/
+
+	void AST::DeleteStatement::printStatement()
+	{
+		std::cout << "DELETE" << std::endl;
+		std::cout << "\t " << tableName << std::endl;
+		for (auto predicate : predicates) {
+			std::cout << "\t "
+				<< std::setw(31)
+				<< predicate.propertyName
+				<< predicate.op;
+			switch (predicate.val.getType().getBaseType())
+			{
+			case BaseType::INT:
+				std::cout << std::setw(31)
+					<< predicate.val.getAsType<int>()
+					<< std::endl;
+				break;
+			case BaseType::FLOAT:
+				std::cout << std::setw(31)
+					<< predicate.val.getAsType<float>()
+					<< std::endl;
+				break;
+			case BaseType::CHAR:
+				std::cout << std::setw(31)
+					<< predicate.val.getAsType<char>()
+					<< std::endl;
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
-	void AST::QuitStatement::callAPI()
+	/*void AST::QuitStatement::callAPI()
 	{
-		throw std::logic_error("Quit API not exists.");
+		throw std::logic_error("Quit API does not exists.");
+	}*/
+
+	void AST::QuitStatement::printStatement()
+	{
+		std::cout << "QUIT" << std::endl;
 	}
 
 	void AST::ExecfileStatement::setFilePath(std::string & s)
@@ -289,10 +421,16 @@ namespace Interpreter {
 		filePath = s;
 	}
 
-	void AST::ExecfileStatement::callAPI()
+	void AST::ExecfileStatement::printStatement()
 	{
-		throw std::logic_error("Execfile API not exists.");
+		std::cout << "EXECFILE" << std::endl;
+		std::cout << ' \t' << filePath << std::endl;
 	}
+
+	/*void AST::ExecfileStatement::callAPI()
+	{
+		throw std::logic_error("Execfile API does not exists.");
+	}*/
 
 
 	
