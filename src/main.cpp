@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "Parser.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -23,13 +24,27 @@ void testLexer() {
 	}
 }
 
-void testAST(){
+void testParser(){
+	
+	std::ifstream fin(IFILENAME);
+	if (!fin) {
+		std::cout << "FILE ERROR" << std::endl;
+	}
+	else {
+		std::istream & is = fin;
+		Parser parser(is);
 
+		Statements statements = parser.parse();
+
+		for (PtrStat statement : statements) {
+			statement->printStatement();
+		}
+	}
 }
 int main() {
 	
-	testLexer();
-	testAST();
+	//testLexer();
+	testParser();
 
 	return 0;
 }
