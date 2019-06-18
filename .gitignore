@@ -8,18 +8,12 @@ compile_commands.json
 CTestTestfile.cmake
 Debug
 .vs
-.vscode
+.vscode/*
 *.sln
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-<<<<<<< HEAD
 CMakeLists.txt
-=======
-
-RecordManager.*
->>>>>>> b7a690e324bfd6ac0e6b2fcf4c71d83705dde0e2
-
 *.index
 *.db
 *.struct
