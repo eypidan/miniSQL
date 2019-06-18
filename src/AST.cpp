@@ -3,13 +3,11 @@
 #include "..\include\Exception.h"
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 namespace Interpreter {
 
-	
-
-
-	void AST::CreateTableStatement::callAPI() const
+	void AST::CreateTableStatement::callAPI()
 	{
 		Table table(tableName, primaryKey, properties);
 		
@@ -25,7 +23,27 @@ namespace Interpreter {
 		
 	}
 
-	void AST::DropStatement::callAPI() const
+	void AST::CreateTableStatement::setTableName(std::string & s)
+	{
+		tableName = s;
+	}
+
+	void AST::CreateTableStatement::setPrimaryKey(std::string & s)
+	{
+		primaryKey = s;
+	}
+
+	void AST::CreateTableStatement::addProperty(Property & p)
+	{
+		properties.push_back(p);
+	}
+
+	void AST::DropStatement::setTableName(std::string & s)
+	{
+		tableName = s;
+	}
+
+	void AST::DropStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::dropTable(tableName);
 		if (res.isSuccess) {
@@ -39,7 +57,7 @@ namespace Interpreter {
 		
 	}
 
-	void AST::CreateIndexStatement::callAPI() const
+	void AST::CreateIndexStatement::callAPI()
 	{
 		Index index(indexName, tableName, propertyName);
 
@@ -54,8 +72,28 @@ namespace Interpreter {
 			throw SQLException("Create Index fails: " + res.errorMessage);
 		}
 	}
+
+	void AST::CreateIndexStatement::setIndexName(std::string & s) {
+		indexName = s;
+	}
+
+	void AST::CreateIndexStatement::setTableName(std::string & s)
+	{
+		tableName = s;
+	}
+
+	void AST::CreateIndexStatement::setPropertyName(std::string & s)
+	{
+		propertyName = s;
+	}
 	
-	void AST::DropIndexStatement::callAPI() const
+	
+	void AST::DropIndexStatement::setIndexName(std::string & s)
+	{
+		indexName = s;
+	}
+
+	void AST::DropIndexStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::dropIndex(indexName);
 
@@ -75,7 +113,22 @@ namespace Interpreter {
 		}
 	}
 	
-	void AST::SelectStatement::callAPI() const
+	void AST::SelectStatement::addRequiredProperty(std::string & s)
+	{
+		properties.push_back(s);
+	}
+
+	void AST::SelectStatement::addPredicate(Predicate & p)
+	{
+		predicates.push_back(p);
+	}
+
+	void AST::SelectStatement::setTableName(std::string & s)
+	{
+		tableName = s;
+	}
+
+	void AST::SelectStatement::callAPI()
 	{
 		API::SQLResult<std::pair<View, Table>> res = API::select(properties, tableName, predicates);
 		if (res.isSuccess) {
@@ -89,15 +142,15 @@ namespace Interpreter {
 			
 			Table t = res.result->second;
 			int attrCnt = t.properties.size();
-
+			
 			// calculate the maxWidth of each column
 			std::vector<int> maxWidth(attrCnt, 0);
-			for (i = 0; i < attrCnt; i++) {
-				maxWidth[i] = max(maxWidth[i], t.properties[i].name.size())
+			for (int i = 0; i < attrCnt; i++) {
+				maxWidth[i] = std::max(maxWidth[i], (int)t.properties[i].name.size());
 			}
-			for (i = 0; i < tupleCnt; i++) {
-				for (j = 0; j < attrCnt; j++) {
-					maxWidth[j] = max(maxWidth[j], v[i][j].getAsType().toString().size());
+			for (int i = 0; i < tupleCnt; i++) {
+				for (int j = 0; j < attrCnt; j++) {
+					maxWidth[j] = std::max(maxWidth[j], v[i][j].getAsType().toString().size());
 				}
 			}
 			
@@ -127,7 +180,7 @@ namespace Interpreter {
 				for (int j = 0; j < attrCnt; j++) {
 					std::cout << "|"
 						<< std::setw(maxWidth[j] + 2)
-						<< v[i][j].getAsType;
+						<< v[i][j].getAsType();
 				}
 			}
 			std::cout << "|" << std::endl;
@@ -146,7 +199,17 @@ namespace Interpreter {
 		}
 	}
 
-	void AST::InsertStatement::callAPI() const
+	void AST::InsertStatement::setTableName(std::string & s)
+	{
+		tableName = s;
+	}
+
+	void AST::InsertStatement::addValue(Value & v)
+	{
+		values.push_back(v);
+	}
+
+	void AST::InsertStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::insert(tableName, values);
 		if (res.isSuccess) {
@@ -159,12 +222,22 @@ namespace Interpreter {
 		}
 	}
 
-	void AST::DeleteStatement::callAPI() const
+	void AST::DeleteStatement::setTableName(std::string & s)
 	{
-		API::SQLResult<void> res = API::deleteFrom(tableName, predicates);
+		tableName = s;
+	}
+
+	void AST::DeleteStatement::addPredicate(Predicate & p)
+	{
+		predicates.push_back(p);
+	}
+
+	void AST::DeleteStatement::callAPI()
+	{
+		API::SQLResult<int> res = API::deleteFrom(tableName, predicates);
 		if (res.isSuccess) {
-			std::cout << "Deletion on Table \'" << tableName
-				<< "\' is successful in " << res.durationMS
+			std::cout << *(res.result)
+				<< "rows deleted successful in " << res.durationMS
 				<< " ms" << std::endl;
 		}
 		else {
@@ -172,12 +245,12 @@ namespace Interpreter {
 		}
 	}
 
-	void AST::QuitStatement::callAPI() const
+	void AST::QuitStatement::callAPI()
 	{
 		throw std::logic_error("Quit API not exists.");
 	}
 
-	void AST::ExecfileStatement::callAPI() const
+	void AST::ExecfileStatement::callAPI()
 	{
 		throw std::logic_error("Execfile API not exists.");
 	}

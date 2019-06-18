@@ -1,6 +1,6 @@
 #pragma once
 #include "MetaData.h"
-#include "Exception.h
+#include "Exception.h"
 
 
 namespace Interpreter {
@@ -10,13 +10,16 @@ namespace Interpreter {
 		public:
 			Statement();
 			virtual ~Statement();
-			virtual void callAPI() const;
+			virtual void callAPI();
 		};
 
 		class CreateTableStatement: public Statement
 		{
 		public:
-			void callAPI() const override;
+			void callAPI() override;
+			void setTableName(std::string &);
+			void setPrimaryKey(std::string &);
+			void addProperty(Property &);
 
 		private:
 			std::string tableName;
@@ -27,7 +30,8 @@ namespace Interpreter {
 		class DropStatement: public Statement
 		{
 		public:
-			void callAPI() const override;
+			void setTableName(std::string &);
+			void callAPI() override;
 
 		private:
 			std::string tableName;
@@ -36,7 +40,10 @@ namespace Interpreter {
 		class CreateIndexStatement : public Statement
 		{
 		public:
-			void callAPI() const override;
+			void callAPI() override;
+			void setIndexName(std::string &);
+			void setTableName(std::string &);
+			void setPropertyName(std::string &);
 		private:
 			std::string indexName;
 			std::string tableName;
@@ -46,7 +53,8 @@ namespace Interpreter {
 		class DropIndexStatement : public Statement
 		{
 		public:
-			void callAPI() const override;
+			void setIndexName(std::string &);
+			void callAPI() override;
 		private:
 			std::string indexName;
 		};
@@ -54,7 +62,10 @@ namespace Interpreter {
 		class SelectStatement : public Statement
 		{
 		public:
-			void callAPI() const override;
+			void addRequiredProperty(std::string &);
+			void addPredicate(Predicate &);
+			void setTableName(std::string &);
+			void callAPI() override;
 		private:
 			std::vector<std::string> properties;
 			std::string tableName;
@@ -64,7 +75,9 @@ namespace Interpreter {
 		class InsertStatement : public Statement
 		{
 		public:
-			void callAPI() const override;
+			void setTableName(std::string &);
+			void addValue(Value &);
+			void callAPI() override;
 		private:
 			std::string tableName;
 			std::vector<Value> values;
@@ -73,7 +86,9 @@ namespace Interpreter {
 		class DeleteStatement : public Statement
 		{
 		public:
-			void callAPI() const override;
+			void setTableName(std::string &);
+			void addPredicate(Predicate &);
+			void callAPI() override;
 		private:
 			std::string tableName;
 			std::vector<Predicate> predicates;
@@ -82,14 +97,14 @@ namespace Interpreter {
 		class QuitStatement : public Statement
 		{
 		public:
-			void callAPI() const override;
+			void callAPI() override;
 		};
 
 
 		class ExecfileStatement : public Statement
 		{
 		public:
-			void callAPI() const override;
+			void callAPI() override;
 		private:
 			std::string filePath;
 		};
