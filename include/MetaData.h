@@ -53,12 +53,11 @@ private:
 	Type &type;
 	void *val;
 public:
-
 	Value(Type &type, void *val) : type(type), val(val) {}
 	Value(Type &type, const void *val) : type(type) {
 		setConst(val);
 	}
-	
+	Value(Value & that) : type(that.type), val(that.val) {}
 	template<typename T>
 	inline T* getAsType() const {
 		return reinterpret_cast<T*>(val);
