@@ -82,14 +82,6 @@ namespace Interpreter {
 			skipChars(1);
 			return Token(Symbol::RBRACKET, currLineNum, currColNum);
 		}
-		else if (*pos == '+') {
-			skipChars(1);
-			return Token(Symbol::PLUS, currLineNum, currColNum);
-		}
-		else if (*pos == '-') {
-			skipChars(1);
-			return Token(Symbol::MINUS, currLineNum, currColNum);
-		}
 		else if (*pos == '<') {
 			skipChars(1);
 			if (*pos == '=') {
