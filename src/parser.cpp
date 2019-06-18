@@ -11,4 +11,8 @@ namespace Interpreter {
 	{
 		return Statements();
 	}
+	PtrStat Parser::parseCreate()
+	{
+		return PtrStat();
+	}
 }
