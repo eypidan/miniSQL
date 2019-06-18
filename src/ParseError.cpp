@@ -4,7 +4,12 @@
 namespace Interpreter {
 	static std::string errMsg(const std::string & msg, const int ln, const int cn) {
 		std::stringstream s;
-		s << "Line " << ln << ", Column " << cn << ":" << std::endl;
+		if (ln == -1 && cn == -1) {
+			s << "At the end of input:" << std::endl;
+		}
+		else {
+			s << "Line " << ln << ", Column " << cn << ":" << std::endl;
+		}
 		s << "ParseError: " << msg;
 		return s.str();
 	}
