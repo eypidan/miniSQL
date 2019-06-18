@@ -17,12 +17,11 @@ namespace RM {
 		return bufferManager.JudgeFileExistence(TABLE_STRUCT_FILE(tableName));   //judge the struct if exists
 	}
 	void createTable(Table &table) {
-		if (!hasTable(table.tableName)) {
-			CM::createTable(table);
-		}
-		else
-		{
+		if (hasTable(table.tableName)) {
 			throw SQLException("table "+table.tableName+"exists");                         //throw the file exist exception
+		}
+		else {
+			CM::createTable(table);
 		}
 	}
 	void dropTable(Table& table){
@@ -58,6 +57,27 @@ namespace RM {
 		}
 
 	}
+	static bool satisfy(string name,Predicate &predicate,Value &record) {
+			if (predicate.propertyName == name) {
+				auto &value = record;
+				switch (predicate.op) {
+				case OpType::EQ:
+					return value == predicate.val;
+				case OpType::NE:
+					return value != predicate.val;
+				case OpType::LT:
+					return value < predicate.val;
+				case OpType::LEQ:
+					return value <= predicate.val;
+				case OpType::GT:
+					return value > predicate.val;
+				case OpType::GEQ:
+					return value >= predicate.val;
+			}
+		}
+		throw SQLException("cannot find attribute \'" + predicate.propertyName +
+			"\' in table \'" + name + "\'");
+	}
 	int deleteAllRecords(Table& table){
 		if (!hasTable(table.tableName)) {
 			throw SQLException("table " +table.tableName+" doesn't exist");
@@ -65,10 +85,12 @@ namespace RM {
 		bufferManager.CreateFile(RECORD_STRUCT_FILE(table.tableName));
 		FileNode* file = bufferManager.GetFile(RECORD_STRUCT_FILE(table.tableName));
 		int position = file->getBlockNum();
-		BlockNode* block = file->getblock(position);
-		bool deleted = true;
-		memcpy(block->Data, &deleted, sizeof(bool));
-		block->dirty = true;
+		for (int i = 0; i < position; i++) {
+			BlockNode* block = file->getblock(i);
+			bool deleted = true;
+			memcpy(block->Data, &deleted, sizeof(bool));
+			block->dirty = true;
+		}
 	}
 	int deleteRecords(
 		Table& table,
@@ -90,18 +112,16 @@ namespace RM {
 			Value* record = new Value;
 			memcpy(record, block->Data + p, sizeof(Value));
 			records->push_back(*record);
-			p += sizeof(record);
-		}
-		for (int j = 0; j < predicates.size(); j++) {
-			switch (predicates[j].op) {
-			case EQ:// =
-				predicates[j].propertyName
-			case NE: // <>
-			case LT: // <
-			case LEQ: // <=
-			case GT: // >
-			case GEQ: // >=
+			bool flag = false;
+			for (int j = 0; j < predicates.size(); j++) {
+				flag *= satisfy(predicates[j].propertyName, predicates[j], *record);
 			}
+			if (flag == true) {
+				bool deleted = true;
+				memcpy(block->Data+p, &deleted, sizeof(bool));
+				block->dirty = true;
+			}
+			p += sizeof(record);
 		}
 	}
 	View selectRecords(
