@@ -148,9 +148,25 @@ namespace Interpreter {
 			for (int i = 0; i < attrCnt; i++) {
 				maxWidth[i] = std::max(maxWidth[i], (int)t.properties[i].name.size());
 			}
+
 			for (int i = 0; i < tupleCnt; i++) {
 				for (int j = 0; j < attrCnt; j++) {
-					maxWidth[j] = std::max(maxWidth[j], v[i][j].getAsType().toString().size());
+					Value & val = v[i][j];
+					Type & type = val.getType();
+
+					switch (type.getBaseType)
+					{
+					case BaseType::INT:
+						maxWidth[j] = std::max(maxWidth[j], getLength(*(val.getAsType<int>())));
+					case BaseType::FLOAT:
+						maxWidth[j] = std::max(maxWidth[j], getLength(*(val.getAsType<float>())));
+					case BaseType::CHAR:
+						maxWidth[j] = std::max(maxWidth[j], getLength(*(val.getAsType<char>())));
+					default:
+						break;
+					}
+
+					
 				}
 			}
 			
@@ -178,11 +194,29 @@ namespace Interpreter {
 
 			for (int i = 0; i < tupleCnt; i++) {
 				for (int j = 0; j < attrCnt; j++) {
-					std::cout << "|"
-						<< std::setw(maxWidth[j] + 2)
-						<< v[i][j].getAsType();
+					Value & val = v[i][j];
+					Type & t = v[i][j].getType();
+					switch (t.getBaseType())
+					{
+					case BaseType::INT:
+						std::cout << "|"
+							<< std::setw(maxWidth[j] + 2)
+							<< *(val.getAsType<int>());
+					case BaseType::FLOAT:
+						std::cout << "|"
+							<< std::setw(maxWidth[j] + 2)
+							<< *(val.getAsType<float>());
+					case BaseType::CHAR:
+						std::cout << "|"
+							<< std::setw(maxWidth[j] + 2)
+							<< *(val.getAsType<char>());
+					default:
+						break;
+					}
+					
 				}
 			}
+
 			std::cout << "|" << std::endl;
 
 			for (int i = 0; i < attrCnt; i++) {

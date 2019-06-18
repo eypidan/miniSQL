@@ -1,6 +1,7 @@
 #pragma once
 #include "MetaData.h"
 #include "Exception.h"
+#include <sstream>
 
 
 namespace Interpreter {
@@ -67,6 +68,13 @@ namespace Interpreter {
 			void addPredicate(Predicate &);
 			void setTableName(std::string &);
 			void callAPI() override;
+			template<typename T>
+			inline int getLength(const T& t) {
+				std::ostringstream os;
+				os << t;
+				return os.str().size();
+			}
+
 		private:
 			std::vector<std::string> properties;
 			std::string tableName;
