@@ -250,6 +250,11 @@ namespace Interpreter {
 		throw std::logic_error("Quit API not exists.");
 	}
 
+	void AST::ExecfileStatement::setFilePath(std::string & s)
+	{
+		filePath = s;
+	}
+
 	void AST::ExecfileStatement::callAPI()
 	{
 		throw std::logic_error("Execfile API not exists.");

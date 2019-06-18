@@ -11,6 +11,7 @@ namespace Interpreter {
 			Statement();
 			virtual ~Statement();
 			virtual void callAPI();
+			//virtual void printStatement();
 		};
 
 		class CreateTableStatement: public Statement
@@ -104,6 +105,7 @@ namespace Interpreter {
 		class ExecfileStatement : public Statement
 		{
 		public:
+			void setFilePath(std::string &);
 			void callAPI() override;
 		private:
 			std::string filePath;
