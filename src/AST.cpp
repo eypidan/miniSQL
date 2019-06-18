@@ -54,7 +54,6 @@ namespace Interpreter {
 			throw SQLException("Create Index fails: " + res.errorMessage);
 		}
 	}
-		
 	
 	void AST::DropIndexStatement::callAPI() const
 	{
