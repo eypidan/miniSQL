@@ -22,7 +22,7 @@ namespace API {
 
 	SQLResult<void> dropIndex(Index &index);
 
-	SQLResult<View> select(
+	SQLResult<std::pair<View, Table>> select(
 		std::vector<std::string> &properties,
 		std::string &tableName,
 		std::vector<Predicate> &predicates

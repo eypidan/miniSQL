@@ -27,6 +27,7 @@ struct CharWrapper
 	bool operator <=(const CharWrapper& another) { return strcmp(content, another.content) <= 0; }
 	bool operator >=(const CharWrapper& another) { return strcmp(content, another.content) >= 0; }
 	bool operator ==(const CharWrapper& another) { return strcmp(content, another.content) == 0; }
+	bool operator !=(const CharWrapper& another) { return strcmp(content, another.content) != 0; }
 	friend ostream & operator<<(ostream & os, const CharWrapper & c) {
 		std::string s(c.content);
 		os << s;
