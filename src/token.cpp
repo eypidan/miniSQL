@@ -119,4 +119,20 @@ namespace Interpreter {
 
 		std::cout << '\n';
 	}
+
+	TokenType Token::getType() {
+		return type;
+	}
+
+	TokenValue Token::getValue() {
+		return value;
+	}
+
+	int Token::getlineNum() {
+		return lineNum;
+	};
+	int Token::getcolNum() {
+		return colNum;
+	};
+
 }

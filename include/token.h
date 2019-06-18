@@ -74,6 +74,11 @@ public:
 	Token(float fv, const int ln, const int cn);
 
 	friend void printToken(Token & token);
+	TokenType getType();
+	TokenValue getValue();
+	int getlineNum();
+	int getcolNum();
+
 private:
 	TokenType type;
 	TokenValue value;
