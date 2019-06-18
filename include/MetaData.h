@@ -80,6 +80,37 @@ public:
 		return type;
 	}
 
+	bool operator!=(const Value &rhs) const { return !(*this == rhs); }
+	bool operator>(const Value &rhs) const { return rhs < *this; }
+	bool operator<=(const Value &rhs) const { return !(*this > rhs); }
+	bool operator>=(const Value &rhs) const { return !(*this < rhs); }
+	bool operator<(const Value &rhs) const {
+		if (type.getBaseType() != rhs.getType().getBaseType()) {
+			throw SQLException("cannot compare values with different types");
+		}
+		switch (type.getBaseType()) {
+		case BaseType::INT:
+			return (int*)val < (int*)rhs.val;
+		case BaseType::FLOAT:
+			return (float*)val < (float*)rhs.val;
+		case BaseType::CHAR:
+			return std::strcmp((char*)val, (char*)rhs.val) < 0;
+		}
+	}
+
+	bool operator==(const Value &rhs) const {
+		if (type.getBaseType() != rhs.type.getBaseType()) {
+			throw SQLException("cannot compare values with different types");
+		}
+		switch (type.getBaseType()) {
+		case BaseType::INT:
+			return (int*)val == (int*)rhs.val;
+		case BaseType::FLOAT:
+			return (float*)val == (float*)rhs.val;
+		case BaseType::CHAR:
+			return std::strcmp((char*)val, (char*)rhs.val) == 0;
+		}
+	}
 };
 
 enum OpType { 
