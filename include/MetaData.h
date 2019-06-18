@@ -53,7 +53,7 @@ private:
 	Type &type;
 	void *val;
 public:
-
+        Value(){}
 	Value(Type &type, void *val) : type(type), val(val) {}
 	Value(Type &type, const void *val) : type(type) {
 		setConst(val);
