@@ -11,14 +11,14 @@ namespace Interpreter {
 		public:
 			Statement() = default;
 			virtual ~Statement() = default;
-			//virtual void callAPI();
+			virtual void callAPI();
 			virtual void printStatement() = 0;
 		};
 
 		class CreateTableStatement: public Statement
 		{
 		public:
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 			void setTableName(std::string &);
 			void setPrimaryKey(std::string &);
@@ -34,7 +34,7 @@ namespace Interpreter {
 		{
 		public:
 			void setTableName(std::string &);
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 
 		private:
@@ -44,7 +44,7 @@ namespace Interpreter {
 		class CreateIndexStatement : public Statement
 		{
 		public:
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 			void setIndexName(std::string &);
 			void setTableName(std::string &);
@@ -59,7 +59,7 @@ namespace Interpreter {
 		{
 		public:
 			void setIndexName(std::string &);
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 		private:
 			std::string indexName;
@@ -71,7 +71,7 @@ namespace Interpreter {
 			void addRequiredProperty(std::string &);
 			void addPredicate(Predicate &);
 			void setTableName(std::string &);
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 			template<typename T>
 			inline int getLength(const T& t) {
@@ -91,7 +91,7 @@ namespace Interpreter {
 		public:
 			void setTableName(std::string &);
 			void addValue(Value &);
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 		private:
 			std::string tableName;
@@ -103,7 +103,7 @@ namespace Interpreter {
 		public:
 			void setTableName(std::string &);
 			void addPredicate(Predicate &);
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 		private:
 			std::string tableName;
@@ -113,7 +113,7 @@ namespace Interpreter {
 		class QuitStatement : public Statement
 		{
 		public:
-			//void callAPI() override;
+			void callAPI() override;
 			void printStatement() override;
 		};
 
@@ -122,8 +122,9 @@ namespace Interpreter {
 		{
 		public:
 			void setFilePath(std::string &);
+			std::string getFilePath();
 			void printStatement() override;
-			//void callAPI() override;
+			void callAPI() override;
 		private:
 			std::string filePath;
 		};

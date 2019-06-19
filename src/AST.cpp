@@ -9,7 +9,7 @@
 
 namespace Interpreter {
 
-	/*void AST::CreateTableStatement::callAPI() 
+	void AST::CreateTableStatement::callAPI() 
 	{
 		Table table(tableName, primaryKey, properties);
 		
@@ -22,7 +22,7 @@ namespace Interpreter {
 		else {
 			std::cout << "Create Table fails: " + res.errorMessage << std::endl;
 		}
-	}*/
+	}
 
 	void AST::CreateTableStatement::printStatement()
 	{
@@ -60,7 +60,7 @@ namespace Interpreter {
 		tableName = s;
 	}
 
-	/*void AST::DropStatement::callAPI()
+	void AST::DropStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::dropTable(tableName);
 		if (res.isSuccess) {
@@ -71,7 +71,7 @@ namespace Interpreter {
 		else {
 			std::cout << "Drop Table fails: " + res.errorMessage << std::endl;
 		}
-	}*/
+	}
 
 	void AST::DropStatement::printStatement()
 	{
@@ -79,7 +79,7 @@ namespace Interpreter {
 		std::cout << "\t " << tableName << std::endl;
 	}
 
-	/*void AST::CreateIndexStatement::callAPI()
+	void AST::CreateIndexStatement::callAPI()
 	{
 		Index index(indexName, tableName, propertyName);
 		API::SQLResult<void> res = API::createIndex(index);
@@ -92,7 +92,7 @@ namespace Interpreter {
 		else {
 			std::cout << "Create Index fails: " + res.errorMessage << std::endl;
 		}
-	}*/
+	}
 
 	void AST::CreateIndexStatement::printStatement()
 	{
@@ -122,7 +122,7 @@ namespace Interpreter {
 		indexName = s;
 	}
 
-	/*void AST::DropIndexStatement::callAPI()
+	void AST::DropIndexStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::dropIndex(indexName);
 
@@ -134,7 +134,7 @@ namespace Interpreter {
 		else {
 			std::cout << "Drop Index fails: " + res.errorMessage << std::endl;
 		}
-	}*/
+	}
 
 	void AST::DropIndexStatement::printStatement()
 	{
@@ -163,107 +163,107 @@ namespace Interpreter {
 		tableName = s;
 	}
 
-	//void AST::SelectStatement::callAPI()
-	//{
-	//	API::SQLResult<std::pair<View, Table>> res = API::select(properties, tableName, predicates);
-	//	if (res.isSuccess) {
-	//		View v = res.result->first;
-	//		int tupleCnt = v.size();
-	//		if (tupleCnt == 0) {
-	//			std::cout << "No record selected." << std::endl;
-	//			return;
-	//		}
+	void AST::SelectStatement::callAPI()
+	{
+		API::SQLResult<std::pair<View, Table>> res = API::select(properties, tableName, predicates);
+		if (res.isSuccess) {
+			View v = res.result->first;
+			int tupleCnt = v.size();
+			if (tupleCnt == 0) {
+				std::cout << "No record selected." << std::endl;
+				return;
+			}
 
-	//		Table t = res.result->second;
-	//		int attrCnt = t.properties.size();
+			Table t = res.result->second;
+			int attrCnt = t.properties.size();
 
-	//		// calculate the maxWidth of each column
-	//		std::vector<int> maxWidth(attrCnt, 0);
-	//		for (int i = 0; i < attrCnt; i++) {
-	//			maxWidth[i] = std::max(maxWidth[i], (int)t.properties[i].name.size());
-	//		}
+			// calculate the maxWidth of each column
+			std::vector<int> maxWidth(attrCnt, 0);
+			for (int i = 0; i < attrCnt; i++) {
+				maxWidth[i] = std::max(maxWidth[i], (int)t.properties[i].name.size());
+			}
 
-	//		for (int i = 0; i < tupleCnt; i++) {
-	//			for (int j = 0; j < attrCnt; j++) {
-	//				Value *val = &v[i][j];
-	//				Type *type = &(val->getType());
+			for (int i = 0; i < tupleCnt; i++) {
+				for (int j = 0; j < attrCnt; j++) {
+					Value *val = &v[i][j];
+					Type *type = &(val->getType());
 
-	//				switch (type->getBaseType())
-	//				{
-	//				case BaseType::INT:
-	//					maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<int>())));
-	//				case BaseType::FLOAT:
-	//					maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<float>())));
-	//				case BaseType::CHAR:
-	//					maxWidth[j] = std::max(maxWidth[j], getLength(val->getAsType<char>()));
-	//				default:
-	//					break;
-	//				}
-	//			}
-	//		}
+					switch (type->getBaseType())
+					{
+					case BaseType::INT:
+						maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<int>())));
+					case BaseType::FLOAT:
+						maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<float>())));
+					case BaseType::CHAR:
+						maxWidth[j] = std::max(maxWidth[j], getLength(val->getAsType<char>()));
+					default:
+						break;
+					}
+				}
+			}
 
-	//		// Draw output table
-	//		for (int i = 0; i < attrCnt; i++) {
-	//			std::cout << "+";
-	//			DrawSymbol(maxWidth[i] + 2, '-');
-	//		}
-	//		std::cout << "+";
-	//		std::cout << std::endl;
+			// Draw output table
+			for (int i = 0; i < attrCnt; i++) {
+				std::cout << "+";
+				DrawSymbol(maxWidth[i] + 2, '-');
+			}
+			std::cout << "+";
+			std::cout << std::endl;
 
-	//		for (int i = 0; i < attrCnt; i++) {
-	//			std::cout << "|"
-	//				<< std::setw(maxWidth[i] + 2)
-	//				<< t.properties[i].name;
-	//		}
-	//		std::cout << "|" << std::endl;
+			for (int i = 0; i < attrCnt; i++) {
+				std::cout << "|"
+					<< std::setw(maxWidth[i] + 2)
+					<< t.properties[i].name;
+			}
+			std::cout << "|" << std::endl;
 
-	//		for (int i = 0; i < attrCnt; i++) {
-	//			std::cout << "+";
-	//			DrawSymbol(maxWidth[i] + 2, '-');
-	//		}
-	//		std::cout << "+";
-	//		std::cout << std::endl;
+			for (int i = 0; i < attrCnt; i++) {
+				std::cout << "+";
+				DrawSymbol(maxWidth[i] + 2, '-');
+			}
+			std::cout << "+";
+			std::cout << std::endl;
 
-	//		for (int i = 0; i < tupleCnt; i++) {
-	//			for (int j = 0; j < attrCnt; j++) {
-	//				Value *val = &v[i][j];
-	//				Type *t = &(val->getType());
-	//				switch (t->getBaseType())
-	//				{
-	//				case BaseType::INT:
-	//					std::cout << "|"
-	//						<< std::setw(maxWidth[j] + 2)
-	//						<< *(val->getAsType<int>());
-	//				case BaseType::FLOAT:
-	//					std::cout << "|"
-	//						<< std::setw(maxWidth[j] + 2)
-	//						<< *(val->getAsType<float>());
-	//				case BaseType::CHAR:
-	//					std::cout << "|"
-	//						<< std::setw(maxWidth[j] + 2)
-	//						<< val->getAsType<char>();
-	//				default:
-	//					break;
-	//				}
+			for (int i = 0; i < tupleCnt; i++) {
+				for (int j = 0; j < attrCnt; j++) {
+					Value *val = &v[i][j];
+					Type *t = &(val->getType());
+					switch (t->getBaseType())
+					{
+					case BaseType::INT:
+						std::cout << "|"
+							<< std::setw(maxWidth[j] + 2)
+							<< *(val->getAsType<int>());
+					case BaseType::FLOAT:
+						std::cout << "|"
+							<< std::setw(maxWidth[j] + 2)
+							<< *(val->getAsType<float>());
+					case BaseType::CHAR:
+						std::cout << "|"
+							<< std::setw(maxWidth[j] + 2)
+							<< val->getAsType<char>();
+					default:
+						break;
+					}
 
-	//			}
-	//		}
+				}
+			}
 
-	//		std::cout << "|" << std::endl;
+			std::cout << "|" << std::endl;
 
-	//		for (int i = 0; i < attrCnt; i++) {
-	//			std::cout << "+";
-	//			DrawSymbol(maxWidth[i] + 2, '-');
-	//		}
-	//		std::cout << "+";
-	//		std::cout << std::endl;
+			for (int i = 0; i < attrCnt; i++) {
+				std::cout << "+";
+				DrawSymbol(maxWidth[i] + 2, '-');
+			}
+			std::cout << "+";
+			std::cout << std::endl;
 
-	//		std::cout << tupleCnt << " rows in set (" << res.durationMS << " ms)";
-	//	}
-	//	else {
-	//		std::cout << "Select fails: " + res.errorMessage << std::endl;
-	//	}
-	//}
+			std::cout << tupleCnt << " rows in set (" << res.durationMS << " ms)";
+		}
+		else {
+			std::cout << "Select fails: " + res.errorMessage << std::endl;
+		}
+	}
 
 	void AST::SelectStatement::printStatement()
 	{
@@ -317,7 +317,7 @@ namespace Interpreter {
 		values.push_back(v);
 	}
 
-	/*void AST::InsertStatement::callAPI()
+	void AST::InsertStatement::callAPI()
 	{
 		API::SQLResult<void> res = API::insert(tableName, values);
 		if (res.isSuccess) {
@@ -328,7 +328,7 @@ namespace Interpreter {
 		else {
 			std::cout << "Insert Value fails: " + res.errorMessage << std::endl;
 		}
-	}*/
+	}
 
 	void AST::InsertStatement::printStatement()
 	{
@@ -368,7 +368,7 @@ namespace Interpreter {
 		predicates.push_back(p);
 	}
 
-	/*void AST::DeleteStatement::callAPI()
+	void AST::DeleteStatement::callAPI()
 	{
 		API::SQLResult<int> res = API::deleteFrom(tableName, predicates);
 		if (res.isSuccess) {
@@ -379,7 +379,7 @@ namespace Interpreter {
 		else {
 			std::cout << "Delete Value fails: " + res.errorMessage << std::endl;
 		}
-	}*/
+	}
 
 	void AST::DeleteStatement::printStatement()
 	{
@@ -418,10 +418,10 @@ namespace Interpreter {
 		}
 	}
 
-	/*void AST::QuitStatement::callAPI()
+	void AST::QuitStatement::callAPI()
 	{
 		throw std::logic_error("Quit API does not exists.");
-	}*/
+	}
 
 	void AST::QuitStatement::printStatement()
 	{
@@ -433,16 +433,21 @@ namespace Interpreter {
 		filePath = s;
 	}
 
+	std::string AST::ExecfileStatement::getFilePath()
+	{
+		return filePath;
+	}
+
 	void AST::ExecfileStatement::printStatement()
 	{
 		std::cout << "EXECFILE" << std::endl;
 		std::cout << ' \t' << filePath << std::endl;
 	}
 
-	/*void AST::ExecfileStatement::callAPI()
+	void AST::ExecfileStatement::callAPI()
 	{
 		throw std::logic_error("Execfile API does not exists.");
-	}*/
+	}
 
 
 	

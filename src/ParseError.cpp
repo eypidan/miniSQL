@@ -2,6 +2,8 @@
 #include <sstream>
 
 namespace Interpreter {
+
+	
 	static std::string errMsg(const std::string & msg, const int ln, const int cn) {
 		std::stringstream s;
 		if (ln == -1 && cn == -1) {

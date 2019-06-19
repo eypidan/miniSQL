@@ -1,4 +1,3 @@
-#include "Parser.h"
 #include "ParseError.h"
 #include "Parser.h"
 #include <sstream>
@@ -36,7 +35,7 @@ namespace Interpreter {
 					stats.push_back(parseQuit());
 				}
 				else if (keyword == Keyword::EXECFILE) {
-					stats.push_back(parseSelect());
+					stats.push_back(parseExecFile());
 				}
 				else raiseException("Invalid Statement.");
 			}
