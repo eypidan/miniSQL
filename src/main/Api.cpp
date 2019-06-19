@@ -147,6 +147,15 @@ namespace API {
 		clock_t start = clock();
 		try {
 			auto table = CM::findTable(tableName);
+			// reset char's size
+			auto properties = table->properties;
+			for (int i = 0; i < properties.size(); i++) {
+				if (properties[i].type.getBaseType() == BaseType::CHAR) {
+					Type type = values[i].getType();
+					type.setType(BaseType::CHAR, properties[i].type.getSize());
+					values[i].setType(type);
+				}
+			}
 			RM::insertRecord(*table, values);
 			return SQLResult<void>(
 				nullptr, clock() - start, true, "");
