@@ -12,7 +12,7 @@ namespace Interpreter {
 		else {
 			s << "Line " << ln << ", Column " << cn << ":" << std::endl;
 		}
-		s << "ParseError: " << msg;
+		s << "\033[31mParseError: \033[0m" << msg;
 		return s.str();
 	}
 
