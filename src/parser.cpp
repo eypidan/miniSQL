@@ -190,6 +190,7 @@ namespace Interpreter {
 		expect(Keyword::FROM);
 		p->setTableName(getIdentifier());
 		if (meet(Keyword::WHERE)) {
+			itr++;
 			bool first = true;
 			do {
 				if (!first) itr++;
