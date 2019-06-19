@@ -9,7 +9,6 @@ CTestTestfile.cmake
 Debug
 .vs
 .vscode/*
-*.sln
 *.index
 *.db
 *.struct
