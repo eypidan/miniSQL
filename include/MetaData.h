@@ -23,6 +23,8 @@ public:
 		setType(baseType, charSize);
 	}
 
+	Type(const Type & that) : baseType(that.baseType), size(that.size) {}
+
 	inline void setType(BaseType baseType, size_t charSize = 0) {
 		this->baseType = baseType;
 		switch (baseType) {
@@ -74,7 +76,7 @@ public:
 	Value(Type type, const void *val) : type(type) {
 		setConst(val);
 	}
-	
+	Value(const Value & that) : type(that.type), val(that.val) {}
 	template<typename T>
 	inline T* getAsType() const {
 		return reinterpret_cast<T*>(val);
