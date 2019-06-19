@@ -131,6 +131,14 @@ namespace API {
 			auto table = CM::findTable(tableName);
 			CM::dropTable(*table);
 			RM::dropTable(*table);
+			// drop all indexes of table
+			for (int i = 0; i < table->properties.size(); i++) {
+				string propertyName(table->properties[i].name);
+				auto index = CM::findIndexByTable(tableName, propertyName);
+				if (index != nullptr) {
+					IndexManager::dropIndex(*index);
+				}
+			}
 			return SQLResult<void>(
 				nullptr, clock() - start, true, "");
 		}
