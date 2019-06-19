@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "Parser.h"
+#include "REPL.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -41,10 +42,17 @@ void testParser(){
 		}
 	}
 }
+
+void testREPL() {
+	REPL repl;
+	repl.run();
+}
+
 int main() {
 	
 	//testLexer();
-	testParser();
-
+	//testParser();
+	testREPL();
+ 
 	return 0;
 }
