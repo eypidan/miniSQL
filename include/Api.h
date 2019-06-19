@@ -24,7 +24,7 @@ namespace API {
 
 	SQLResult<void> createIndex(Index &index);
 
-	SQLResult<void> dropIndex(std::string & indexName);
+	SQLResult<void> dropIndex(std::string indexName);
 
 	/**
 	 * Do something like "select [properties] from [tableName] where [predicates]"

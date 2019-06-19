@@ -75,7 +75,7 @@ namespace API {
 		}
 	}
 
-	SQLResult<void> dropIndex(std::string & indexName) {
+	SQLResult<void> dropIndex(std::string indexName) {
 		clock_t start = clock();
 		try {
 			Index* index = CM::findIndexByName(indexName);

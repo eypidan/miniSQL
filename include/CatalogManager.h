@@ -11,11 +11,11 @@ namespace CM {
 	void createTable(Table &table);
 	void dropTable(Table &table);
 
-	bool hasIndex(std::string & indexName);
+	bool hasIndex(std::string indexName);
 	Index* findIndexByName(std::string & indexName);
 	Index* findIndexByTable(std::string & tableName, std::string & propertyName);
-	void createIndex(Index &index);
-	void dropIndex(Index &index);
+	void createIndex(Index& index);
+	void dropIndex(Index& index);
 
 	void updateIndexCache();
 	void ensureIndexFile();

@@ -88,13 +88,13 @@ namespace CM {
 		}
 	}
 
-	bool hasIndex(std::string & indexName) {
+	bool hasIndex(std::string indexName) {
 		ensureIndexFile();
 		
 		return indexCache.count(indexName) != 0;
 	}
 
-	void createIndex(Index &index) {
+	void createIndex(Index& index) {
 		ensureIndexFile();
 		if (indexCache.count(index.indexName) != 0) {
 			throw SQLException("index " + index.indexName + " has already existed.");
@@ -106,7 +106,8 @@ namespace CM {
 		int position = indexFile->allocNewNode(block);
 		block->dirty = true;
 		// update cache
-		auto a = make_pair(index.indexName, &index);
+		Index* newIndex = new Index(index);
+		auto a = make_pair(index.indexName, newIndex);
 		indexCache.insert(a);
 		indexPositionCache.insert(make_pair(index.indexName, position));
 		// write delete status flag
