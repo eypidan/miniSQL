@@ -110,6 +110,11 @@ namespace Interpreter {
 					prpt->unique = true;
 					itr++;
 				}
+				if (meet(Keyword::PRIMARY)) {
+					itr++;
+					expect(Keyword::KEY);
+					p->setPrimaryKey(*name);
+				}
 				p->addProperty(*prpt);
 			}
 			first = false;
