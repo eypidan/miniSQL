@@ -20,6 +20,7 @@ namespace CM {
 	void updateIndexCache();
 	void ensureIndexFile();
 
+	static std::map<std::string, std::shared_ptr<Table>> tableCache;
 	// indexName -> position in file
 	static std::map<std::string, int> indexPositionCache;
 	// indexName -> Index*

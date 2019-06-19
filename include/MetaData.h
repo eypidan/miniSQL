@@ -154,10 +154,10 @@ struct Table {
 };
 
 struct Index {
-	std::string &indexName;
-	std::string &tableName;
-	std::string &propertyName;
-	Index(std::string &indexName, std::string &tableName, std::string &propertyName)
+	std::string indexName;
+	std::string tableName;
+	std::string propertyName;
+	Index(std::string indexName, std::string tableName, std::string propertyName)
 		: indexName(indexName), tableName(tableName), propertyName(propertyName) {}
 };
 

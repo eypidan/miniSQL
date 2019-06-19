@@ -1,6 +1,6 @@
 #pragma once
 #include <time.h>
-#include "MetaData.h"
+#include <MetaData.h>
 
 namespace API {
 	template <typename T>
@@ -8,7 +8,7 @@ namespace API {
 		std::shared_ptr<T> result;
 		clock_t durationMS;
 		bool isSuccess = true;
-		const std::string &errorMessage;
+		const std::string errorMessage;
 
 		SQLResult(std::shared_ptr<T> result, clock_t durationMS, bool isSuccess, const std::string &errorMessage)
 			: result(result), durationMS(durationMS), isSuccess(isSuccess), errorMessage(errorMessage) {}
@@ -16,11 +16,11 @@ namespace API {
 
 	SQLResult<void> createTable(Table &table);
 
-	SQLResult<void> dropTable(Table &table);
+	SQLResult<void> dropTable(std::string & tableName); // tableName only
 
 	SQLResult<void> createIndex(Index &index);
 
-	SQLResult<void> dropIndex(Index &index);
+	SQLResult<void> dropIndex(std::string & indexName); // indexName only
 
 	SQLResult<std::pair<View, Table>> select(
 		std::vector<std::string> &properties,
