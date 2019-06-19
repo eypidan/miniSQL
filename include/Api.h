@@ -33,7 +33,7 @@ namespace API {
 	 * @param predicates: where clauses linked by "and"
 	 * @return: select results and table specified
 	 */
-	SQLResult<std::pair<View, Table>> select(
+	SQLResult<std::pair<View, std::vector<std::string>>> select(
 		std::vector<std::string> &properties,
 		std::string &tableName,
 		std::vector<Predicate> &predicates
