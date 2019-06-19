@@ -136,6 +136,7 @@ namespace API {
 				string propertyName(table->properties[i].name);
 				auto index = CM::findIndexByTable(tableName, propertyName);
 				if (index != nullptr) {
+					CM::dropIndex(*index);
 					IndexManager::dropIndex(*index);
 				}
 			}
