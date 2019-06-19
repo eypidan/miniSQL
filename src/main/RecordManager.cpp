@@ -15,13 +15,13 @@ namespace RM {
 		for (int i = 0; i < record->size(); i++) {
 			switch (record->at(i).getType().getBaseType()) {
 			case BaseType::INT:
-				delete record->at(i).getAsType<int*>();
+				delete record->at(i).getAsType<int>();
 				break;
 			case BaseType::FLOAT:
-				delete record->at(i).getAsType<float*>();
+				delete record->at(i).getAsType<float>();
 				break;
 			case BaseType::CHAR:
-				delete[] record->at(i).getAsType<char*>();
+				delete[] record->at(i).getAsType<char>();
 				break;
 			}
 		}
@@ -180,7 +180,9 @@ namespace RM {
 			for (int i = 0; i < properties.size(); i++) {
 				for (int j = 0; j < table.properties.size(); j++) {
 					if (table.properties[j].name == properties[i]) {
-						projection->push_back(record->at(j));
+						Value* value = new Value(record->at(j));
+						
+						projection->push_back(*value);
 						break;
 					}
 				}
@@ -229,7 +231,9 @@ namespace RM {
 			size_t size = table.properties[i].type.getSize();
 			char* content = new char[size];
 			memcpy(content, ptr + p, size);
-			records->emplace_back(table.properties[i].type, content);
+			records->emplace_back();
+			records->operator[](records->size() - 1).set(content);
+			records->operator[](records->size() - 1).setType(table.properties[i].type);
 			p += size;
 		}
 		return std::shared_ptr<std::vector<Value>>(records);

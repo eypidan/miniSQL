@@ -84,12 +84,25 @@ private:
 	void *val;
 
 public:
+	Value() = default;
 	Value(Type type, void *val) : type(type), val(val) {}
 	Value(Type type, const void *val) : type(type)
 	{
 		setConst(val);
 	}
-	Value(const Value &that) : type(that.type), val(that.val) {}
+	Value(const Value &that) : type(that.type) {
+		int size = that.type.getSize();
+		if (size == 0) {
+			size = 256;
+		}
+		val = new char[size];
+		if (that.type.getBaseType() == BaseType::CHAR) {
+			strcpy((char*)val, (char*)that.val);
+		}
+		else {
+			memcpy(val, that.val, type.getSize());
+		}
+	}
 	template <typename T>
 	inline T *getAsType() const
 	{
