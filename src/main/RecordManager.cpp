@@ -140,7 +140,7 @@ namespace RM {
 			memcpy(bn->Data + offset, &valid, sizeof(bool));
 			bn->dirty = true;
 			count++;
-			deleteIndexes(table, record);
+			//deleteIndexes(table, record);
 			return true; // go on searching
 		});
 		

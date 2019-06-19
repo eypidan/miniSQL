@@ -46,6 +46,9 @@ namespace CM {
 	}
 
 	shared_ptr<Table> findTable(std::string & tableName) {
+		if (tableCache.count(tableName) != 0) {
+			return tableCache[tableName];
+		}
 		if (!hasTable(tableName)) {
 			throw SQLException("Table not exists!");
 		}
@@ -70,12 +73,15 @@ namespace CM {
 			properties->push_back(*property);
 			p += sizeof(Property);
 		}
-		return make_shared<Table>(*name, *primary, *properties);
+		auto re = make_shared<Table>(*name, *primary, *properties);
+		tableCache.insert(std::make_pair(tableName, re));
+		return re;
 	}
 	
 	void dropTable(Table &table) {
 		if (hasTable(table.tableName)) {
 			bufferManager.DeleteFile(TABLE_STRUCT_FILE(table.tableName));
+			tableCache.erase(table.tableName);
 		}
 		else {
 			throw SQLException("Table doesn't exist!");
@@ -100,7 +106,8 @@ namespace CM {
 		int position = indexFile->allocNewNode(block);
 		block->dirty = true;
 		// update cache
-		indexCache.insert(make_pair(index.indexName, &index));
+		auto a = make_pair(index.indexName, &index);
+		indexCache.insert(a);
 		indexPositionCache.insert(make_pair(index.indexName, position));
 		// write delete status flag
 		bool deleted = false;
@@ -130,6 +137,7 @@ namespace CM {
 		bool deleted = true;
 		memcpy(block->Data, &deleted, sizeof(bool));
 		block->dirty = true;
+		indexCache.erase(index.indexName);
 	}
 
 	Index* findIndexByName(std::string & indexName) {
