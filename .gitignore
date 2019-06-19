@@ -10,10 +10,6 @@ Debug
 .vs
 .vscode/*
 *.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-CMakeLists.txt
 *.index
 *.db
 *.struct
