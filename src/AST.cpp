@@ -20,7 +20,7 @@ namespace Interpreter {
 				<< " ms" << std::endl;
 		}
 		else {
-			throw SQLException("Create Table fails: " + res.errorMessage);
+			std::cout << "Create Table fails: " + res.errorMessage << std::endl;
 		}
 	}*/
 
@@ -32,8 +32,10 @@ namespace Interpreter {
 		for (auto property : properties) {
 			std::cout << "\t "
 				<< property.name
-				<< property.isUnique
-				<< std::endl;
+				<< "\t ";
+			if (property.isUnique)
+				std::cout << "Unique" << std::endl;
+			else std::cout << std::endl;
 		}
 
 	}
@@ -67,7 +69,7 @@ namespace Interpreter {
 				<< " ms" << std::endl;
 		}
 		else {
-			throw SQLException("Drop Table fails: " + res.errorMessage);
+			std::cout << "Drop Table fails: " + res.errorMessage << std::endl;
 		}
 	}*/
 
@@ -88,7 +90,7 @@ namespace Interpreter {
 				<< " ms" << std::endl;
 		}
 		else {
-			throw SQLException("Create Index fails: " + res.errorMessage);
+			std::cout << "Create Index fails: " + res.errorMessage << std::endl;
 		}
 	}*/
 
@@ -97,7 +99,7 @@ namespace Interpreter {
 		std::cout << "CREATE INDEX" << std::endl;
 		std::cout << "\t " << indexName << std::endl;
 		std::cout << "\t " << tableName << std::endl;
-		std::cout << "\t " << indexName << std::endl;
+		std::cout << "\t " << propertyName << std::endl;
 	}
 
 	void AST::CreateIndexStatement::setIndexName(std::string & s) {
@@ -130,7 +132,7 @@ namespace Interpreter {
 				<< " ms" << std::endl;
 		}
 		else {
-			throw SQLException("Drop Index fails: " + res.errorMessage);
+			std::cout << "Drop Index fails: " + res.errorMessage << std::endl;
 		}
 	}*/
 
@@ -193,7 +195,7 @@ namespace Interpreter {
 	//				case BaseType::FLOAT:
 	//					maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<float>())));
 	//				case BaseType::CHAR:
-	//					maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<char>())));
+	//					maxWidth[j] = std::max(maxWidth[j], getLength(val->getAsType<char>()));
 	//				default:
 	//					break;
 	//				}
@@ -239,7 +241,7 @@ namespace Interpreter {
 	//				case BaseType::CHAR:
 	//					std::cout << "|"
 	//						<< std::setw(maxWidth[j] + 2)
-	//						<< *(val->getAsType<char>());
+	//						<< val->getAsType<char>();
 	//				default:
 	//					break;
 	//				}
@@ -259,7 +261,7 @@ namespace Interpreter {
 	//		std::cout << tupleCnt << " rows in set (" << res.durationMS << " ms)";
 	//	}
 	//	else {
-	//		throw SQLException("Select fails: " + res.errorMessage);
+	//		std::cout << "Select fails: " + res.errorMessage << std::endl;
 	//	}
 	//}
 
@@ -274,23 +276,28 @@ namespace Interpreter {
 		std::cout << "\t " << tableName << std::endl;
 		for (auto predicate : predicates) {
 			std::cout << "\t "
+				<< std::left
 				<< std::setw(31)
 				<< predicate.propertyName
+				<< std::setw(31)
 				<< predicate.op;
 			switch (predicate.val.getType().getBaseType())
 			{
 			case BaseType::INT:
-				std::cout << std::setw(31)
-					<< predicate.val.getAsType<int>()
+				std::cout << std::left
+					<< std::setw(31)
+					<< *(predicate.val.getAsType<int>())
 					<< std::endl;
 				break;
 			case BaseType::FLOAT:
-				std::cout << std::setw(31)
-					<< predicate.val.getAsType<float>()
+				std::cout << std::left
+					<< std::setw(31)
+					<< *(predicate.val.getAsType<float>())
 					<< std::endl;
 				break;
 			case BaseType::CHAR:
-				std::cout << std::setw(31)
+				std::cout << std::left
+					<< std::setw(31)
 					<< predicate.val.getAsType<char>()
 					<< std::endl;
 				break;
@@ -319,7 +326,7 @@ namespace Interpreter {
 				<< " ms" << std::endl;
 		}
 		else {
-			throw SQLException("Insert Value fails: " + res.errorMessage);
+			std::cout << "Insert Value fails: " + res.errorMessage << std::endl;
 		}
 	}*/
 
@@ -332,12 +339,12 @@ namespace Interpreter {
 			{
 			case BaseType::INT:
 				std::cout << "\t "
-					<< value.getAsType<int>()
+					<< *(value.getAsType<int>())
 					<< std::endl;
 				break;
 			case BaseType::FLOAT:
 				std::cout << "\t "
-					<< value.getAsType<float>()
+					<< *(value.getAsType<float>())
 					<< std::endl;
 				break;
 			case BaseType::CHAR:
@@ -370,7 +377,7 @@ namespace Interpreter {
 				<< " ms" << std::endl;
 		}
 		else {
-			throw SQLException("Delete Value fails: " + res.errorMessage);
+			std::cout << "Delete Value fails: " + res.errorMessage << std::endl;
 		}
 	}*/
 
@@ -380,23 +387,28 @@ namespace Interpreter {
 		std::cout << "\t " << tableName << std::endl;
 		for (auto predicate : predicates) {
 			std::cout << "\t "
+				<< std::left
 				<< std::setw(31)
 				<< predicate.propertyName
+				<< std::setw(31)
 				<< predicate.op;
 			switch (predicate.val.getType().getBaseType())
 			{
 			case BaseType::INT:
-				std::cout << std::setw(31)
-					<< predicate.val.getAsType<int>()
+				std::cout << std::left
+					<< std::setw(31)
+					<< *(predicate.val.getAsType<int>())
 					<< std::endl;
 				break;
 			case BaseType::FLOAT:
-				std::cout << std::setw(31)
-					<< predicate.val.getAsType<float>()
+				std::cout << std::left
+					<< std::setw(31)
+					<< *(predicate.val.getAsType<float>())
 					<< std::endl;
 				break;
 			case BaseType::CHAR:
-				std::cout << std::setw(31)
+				std::cout << std::left
+					<< std::setw(31)
 					<< predicate.val.getAsType<char>()
 					<< std::endl;
 				break;
