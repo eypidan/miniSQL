@@ -31,9 +31,9 @@ namespace API {
 	 * @param properties: projection properties
 	 * @param tableName: from clause
 	 * @param predicates: where clauses linked by "and"
-	 * @return: select results and table specified
+	 * @return: select results and properties specified
 	 */
-	SQLResult<std::pair<View, Table>> select(
+	SQLResult<std::pair<View, std::vector<std::string>>> select(
 		std::vector<std::string> &properties,
 		std::string &tableName,
 		std::vector<Predicate> &predicates

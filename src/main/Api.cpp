@@ -88,7 +88,7 @@ namespace API {
 		}
 	}
 
-	SQLResult<std::pair<View, Table>> select(
+	SQLResult<std::pair<View, std::vector<std::string>>> select(
 		std::vector<std::string> &properties,
 		std::string &tableName,
 		std::vector<Predicate> &predicates
@@ -96,13 +96,24 @@ namespace API {
 		clock_t start = clock();
 		try {
 			auto tablePtr = CM::findTable(tableName);
-			View result = RM::selectRecords(properties, *tablePtr, predicates);
-			return SQLResult<std::pair<View, Table>>(
-				std::make_shared<std::pair<View, Table>>
-				(std::make_pair(result, *tablePtr)), clock() - start, true, std::string(""));
+			View result;
+			std::vector<string> propertyStrings;
+			if (properties.size() != 0) {
+				propertyStrings = properties;
+				result = RM::selectRecords(properties, *tablePtr, predicates);
+			} else {
+				for (int i = 0; i < tablePtr->properties.size(); i++) {
+					propertyStrings.push_back(tablePtr->properties[i].name);
+				}
+				result = RM::selectRecords(propertyStrings, *tablePtr, predicates);
+			}
+			
+			return SQLResult<std::pair<View, std::vector<std::string>>>(
+				std::make_shared<std::pair<View, std::vector<std::string>>>
+				(std::make_pair(result, propertyStrings)), clock() - start, true, std::string(""));
 		}
 		catch (SQLException e) {
-			return SQLResult<std::pair<View, Table>>(
+			return SQLResult<std::pair<View, std::vector<std::string>>>(
 				nullptr, clock() - start, true, e.msg);
 		}
 	}

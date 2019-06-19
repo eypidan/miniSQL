@@ -185,7 +185,7 @@ namespace Interpreter {
 
 			for (int i = 0; i < tupleCnt; i++) {
 				for (int j = 0; j < attrCnt; j++) {
-					Value *val = &((*v[i])[j]);
+					Value *val = &(v[i]->at(j));
 					Type *type = &(val->getType());
 
 					switch (type->getBaseType())
