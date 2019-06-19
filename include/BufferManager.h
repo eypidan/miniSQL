@@ -44,15 +44,12 @@ class FileNode {
     list<BlockNode *> accessQueue;
     list<BlockNode *> cacheQueue;  // store recently used block
     FILE *fp = NULL;
-
     char *readBlock(int offset);
     void cleanup();
     void writeBack(int offset, char *Data);
     friend class BufferManager;
 public:
-
     FileNode() = default;
-
     ~FileNode();  //write dirty block to disk
     int getBlockNum();   //get this FileNode's block number
     BlockNode *getblock(int index); //get index's block
