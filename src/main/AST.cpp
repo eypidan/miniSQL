@@ -379,7 +379,7 @@ namespace Interpreter {
 		API::SQLResult<int> res = API::deleteFrom(tableName, predicates);
 		if (res.isSuccess) {
 			std::cout << *(res.result)
-				<< "rows deleted successful in " << res.durationMS
+				<< " rows deleted successful in " << res.durationMS
 				<< " ms" << std::endl;
 		}
 		else {
