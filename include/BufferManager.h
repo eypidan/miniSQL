@@ -73,7 +73,7 @@ private:
 public:
 	BufferManager() = default;
 	~BufferManager();
-
+	void globalSynchronize();  // //synchronize all the files in BufferManager's FileServices
 	bool JudgeFileExistence(string FileName);    //return true => file exist
 	bool CreateFile(string FileName);        //return true => create table sucessfully.
 	FileNode *GetFile(const string FileName);    //get this FileName's FileNode
