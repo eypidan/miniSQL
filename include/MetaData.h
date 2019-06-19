@@ -22,6 +22,7 @@ public:
 	Type(const Type & that) : baseType(that.baseType), size(that.size) {}
 
 	inline void setType(BaseType baseType, size_t charSize = 0) {
+		this->baseType = baseType;
 		switch (baseType) {
 			case BaseType::INT:
 				size = sizeof(int);
