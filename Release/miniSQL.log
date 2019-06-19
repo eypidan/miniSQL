@@ -1,0 +1,25 @@
+﻿  Api.cpp
+g:\course\db\project\minisql\src\main\api.cpp(1): fatal error C1083: 无法打开包括文件: “Api.h”: No such file or directory
+  AST.cpp
+g:\course\db\project\minisql\src\main\ast.cpp(1): fatal error C1083: 无法打开包括文件: “AST.h”: No such file or directory
+  BufferManager.cpp
+g:\course\db\project\minisql\src\main\buffermanager.cpp(5): fatal error C1083: 无法打开包括文件: “../include/BufferManager.h”: No such file or directory
+  CatalogManager.cpp
+g:\course\db\project\minisql\src\main\catalogmanager.cpp(1): fatal error C1083: 无法打开包括文件: “CatalogManager.h”: No such file or directory
+  IndexManager.cpp
+g:\course\db\project\minisql\src\main\indexmanager.cpp(1): fatal error C1083: 无法打开包括文件: “IndexManager.h”: No such file or directory
+  lexer.cpp
+g:\course\db\project\minisql\src\main\lexer.cpp(1): fatal error C1083: 无法打开包括文件: “lexer.h”: No such file or directory
+  ParseError.cpp
+g:\course\db\project\minisql\src\main\parseerror.cpp(1): fatal error C1083: 无法打开包括文件: “ParseError.h”: No such file or directory
+  parser.cpp
+g:\course\db\project\minisql\src\main\parser.cpp(1): fatal error C1083: 无法打开包括文件: “ParseError.h”: No such file or directory
+  RecordManager.cpp
+g:\course\db\project\minisql\src\main\recordmanager.cpp(2): fatal error C1083: 无法打开包括文件: “Api.h”: No such file or directory
+  REPL.cpp
+g:\course\db\project\minisql\src\main\repl.cpp(1): fatal error C1083: 无法打开包括文件: “..\include\REPL.h”: No such file or directory
+  token.cpp
+g:\course\db\project\minisql\src\main\token.cpp(1): fatal error C1083: 无法打开包括文件: “token.h”: No such file or directory
+  main.cpp
+g:\course\db\project\minisql\src\test\main.cpp(1): fatal error C1083: 无法打开包括文件: “lexer.h”: No such file or directory
+  正在生成代码...

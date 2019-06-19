@@ -11,6 +11,22 @@
 
 namespace RM {
 
+	void freeRecord(std::shared_ptr<std::vector<Value>> record) {
+		for (int i = 0; i < record->size(); i++) {
+			switch (record->at(i).getType().getBaseType()) {
+			case BaseType::INT:
+				delete record->at(i).getAsType<int*>();
+				break;
+			case BaseType::FLOAT:
+				delete record->at(i).getAsType<float*>();
+				break;
+			case BaseType::CHAR:
+				delete[] record->at(i).getAsType<char*>();
+				break;
+			}
+		}
+	}
+
 	bool hasTable(std::string & tableName) {
 		return bufferManager.JudgeFileExistence(RECORD_FILE(tableName));   //judge the struct if exists
 	}
@@ -78,12 +94,16 @@ namespace RM {
 			int i = 0;
 			for (int i = 0; i < recordsPerBlock; i++) {
 				int offset = i * recordLen;
-				if (readRecord(table, last->Data + offset) == nullptr) {
+				auto re = readRecord(table, last->Data + offset);
+				if (re == nullptr) {
 					// insert here!
 					last->dirty = true;
 					writeRecord(record, last->Data + offset);
 					saveIndexes(table, record, last->offset * recordsPerBlock + i);
 					return;
+				}
+				else {
+					freeRecord(re);
 				}
 			}
 		}
@@ -204,16 +224,15 @@ namespace RM {
 		}
 		p += sizeof(bool);
 		// Second, read records in order.
-		std::vector<Value> *records = new std::vector<Value>;
+		auto records = std::make_shared<std::vector<Value>>();
 		for (int i = 0; i < table.properties.size(); i++) {
 			size_t size = table.properties[i].type.getSize();
 			char* content = new char[size];
 			memcpy(content, ptr + p, size);
-			Value* value = new Value(table.properties[i].type, content);
-			records->push_back(*value);
+			records->emplace_back(table.properties[i].type, content);
 			p += size;
 		}
-		return std::make_shared<std::vector<Value>>(*records);
+		return std::shared_ptr<std::vector<Value>>(records);
 	}
 
 	void saveIndexes(Table& table, std::vector<Value> record, int id) {
@@ -352,6 +371,9 @@ namespace RM {
 		if (record != nullptr && checkPredicate(table, predicates, record)) {
 			consumer(bn, offset, record);
 		}
+		if (record != nullptr) {
+			freeRecord(record);
+		}
 	}
 
 	void forEachLinear(
@@ -382,6 +404,7 @@ namespace RM {
 						return;
 					}
 				}
+				freeRecord(re);
 			}
 		}
 	}

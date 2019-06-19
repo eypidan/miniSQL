@@ -242,3 +242,5 @@ void FileNode::cleanup() {
         }
     }
 }
+
+BufferManager bufferManager;

@@ -80,6 +80,6 @@ public:
 	void DeleteFile(const string FileName);      //delte this file
 };
 
-static BufferManager bufferManager;
+extern BufferManager bufferManager;
 
 #endif //BUFFERMANAGER_BUFFERMANAGER_H

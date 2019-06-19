@@ -5,6 +5,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <algorithm>
+#include <crtdbg.h>
 
 #define IFILENAME "lexer_test.sql"
 
@@ -49,10 +50,10 @@ void testREPL() {
 }
 
 int main() {
-	
+	//_CrtSetBreakAlloc(5115);
 	//testLexer();
 	//testParser();
 	testREPL();
- 
+	_CrtDumpMemoryLeaks();
 	return 0;
 }
