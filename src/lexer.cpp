@@ -7,6 +7,7 @@ namespace Interpreter {
 	Lexer::Lexer(std::istream & is):srcText(is)
 	{
 		lineNum = colNum = 0;
+		pos = currLine.end();
 		getNextLine();
 	}
 
@@ -21,7 +22,7 @@ namespace Interpreter {
 
 	bool Lexer::reachEnd()
 	{
-		if (pos == currLine.end() && !getNextLine()) {
+		if ( pos == currLine.end() && !getNextLine()) {
 			return true;
 		}
 		else return false;
@@ -108,7 +109,7 @@ namespace Interpreter {
 		}
 		// Create a string token with line and column index
 		else if (*pos == '\'' || *pos == '"') {
-			size_t foundEnd = currLine.substr(currColNum).find_first_of('\'"');
+			size_t foundEnd = currLine.substr(currColNum).find_first_of("\'\"");
 			
 			if (foundEnd != std::string::npos) {
 				std::string s = currLine.substr(currColNum, foundEnd);
