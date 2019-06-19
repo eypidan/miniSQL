@@ -5,96 +5,114 @@
 #include <cstring>
 #include "Exception.h"
 
-enum BaseType { 
-	INT, 
-	FLOAT, 
-	CHAR 
+enum BaseType
+{
+	INT,
+	FLOAT,
+	CHAR
 };
 
-class Type {
+class Type
+{
 private:
 	BaseType baseType;
 	size_t size;
-public:
 
+public:
 	Type() = default;
 
-	Type(BaseType baseType, size_t charSize = 0) {
+	Type(BaseType baseType, size_t charSize = 0)
+	{
 		setType(baseType, charSize);
 	}
 
-	Type(const Type & that) : baseType(that.baseType), size(that.size) {}
+	Type(const Type &that) : baseType(that.baseType), size(that.size) {}
 
-	inline void setType(BaseType baseType, size_t charSize = 0) {
+	inline void setType(BaseType baseType, size_t charSize = 0)
+	{
 		this->baseType = baseType;
-		switch (baseType) {
-			case BaseType::INT:
-				size = sizeof(int);
-				break;
-			case BaseType::FLOAT:
-				size = sizeof(float);
-				break;
-			case BaseType::CHAR:
-				size = charSize;
-				break;
+		switch (baseType)
+		{
+		case BaseType::INT:
+			size = sizeof(int);
+			break;
+		case BaseType::FLOAT:
+			size = sizeof(float);
+			break;
+		case BaseType::CHAR:
+			size = charSize;
+			break;
 		}
 	}
 
-	inline size_t getSize() const {
+	inline size_t getSize() const
+	{
 		return size;
 	}
-	inline BaseType getBaseType() const {
+	inline BaseType getBaseType() const
+	{
 		return baseType;
 	}
 
-	bool operator==(const Type &rhs) const {
+	bool operator==(const Type &rhs) const
+	{
 		return baseType == rhs.baseType && size == rhs.size;
 	}
 
-	bool operator!=(const Type &rhs) const {
+	bool operator!=(const Type &rhs) const
+	{
 		return !(rhs == *this);
 	}
 };
 
-struct Property {
+struct Property
+{
 	Type type;
 	char name[64];
 	bool unique;
 	Property() {}
-	Property(Type type, bool unique, std::string &name) : type(type),unique(unique) {
+	Property(Type type, bool unique, std::string &name) : type(type), unique(unique)
+	{
 		strcpy(this->name, name.c_str());
 	}
 };
 
-class Value {
+class Value
+{
 private:
 	Type type;
 	void *val;
-public:
 
+public:
 	Value(Type type, void *val) : type(type), val(val) {}
-	Value(Type type, const void *val) : type(type) {
+	Value(Type type, const void *val) : type(type)
+	{
 		setConst(val);
 	}
-	Value(const Value & that) : type(that.type), val(that.val) {}
-	template<typename T>
-	inline T* getAsType() const {
-		return reinterpret_cast<T*>(val);
+	Value(const Value &that) : type(that.type), val(that.val) {}
+	template <typename T>
+	inline T *getAsType() const
+	{
+		return reinterpret_cast<T *>(val);
 	}
 
-	inline void setConst(const void* val) {
-		this->val = (void*)val;
+	inline void setConst(const void *val)
+	{
+		this->val = (void *)val;
 	}
 
-	inline void set(void* val) {
+	inline void set(void *val)
+	{
 		this->val = val;
 	}
 
-	inline void setType(Type &type) {
+	inline void setType(Type &type)
+	{
 		this->type = type;
 	}
 
-	inline Type getType() const {
+	inline Type getType() const
+	{
 		return type;
 	}
 
@@ -102,52 +120,61 @@ public:
 	bool operator>(const Value &rhs) const { return rhs < *this; }
 	bool operator<=(const Value &rhs) const { return !(*this > rhs); }
 	bool operator>=(const Value &rhs) const { return !(*this < rhs); }
-	bool operator<(const Value &rhs) const {
-		if (type.getBaseType() != rhs.getType().getBaseType()) {
+	bool operator<(const Value &rhs) const
+	{
+		if (type.getBaseType() != rhs.getType().getBaseType())
+		{
 			throw SQLException("cannot compare values with different types");
 		}
-		switch (type.getBaseType()) {
+		switch (type.getBaseType())
+		{
 		case BaseType::INT:
-			return *(int*)val < *(int*)rhs.val;
+			return *(int *)val < *(int *)rhs.val;
 		case BaseType::FLOAT:
-			return *(float*)val < *(float*)rhs.val;
+			return *(float *)val < *(float *)rhs.val;
 		case BaseType::CHAR:
-			return std::strcmp((char*)val, (char*)rhs.val) < 0;
+			return std::strcmp((char *)val, (char *)rhs.val) < 0;
 		}
 	}
 
-	bool operator==(const Value &rhs) const {
-		if (type.getBaseType() != rhs.type.getBaseType()) {
+	bool operator==(const Value &rhs) const
+	{
+		if (type.getBaseType() != rhs.type.getBaseType())
+		{
 			throw SQLException("cannot compare values with different types");
 		}
-		switch (type.getBaseType()) {
+		switch (type.getBaseType())
+		{
 		case BaseType::INT:
-			return *(int*)val == *(int*)rhs.val;
+			return *(int *)val == *(int *)rhs.val;
 		case BaseType::FLOAT:
-			return *(float*)val == *(float*)rhs.val;
+			return *(float *)val == *(float *)rhs.val;
 		case BaseType::CHAR:
-			return std::strcmp((char*)val, (char*)rhs.val) == 0;
+			return std::strcmp((char *)val, (char *)rhs.val) == 0;
 		}
 	}
 };
 
-enum OpType { 
-	EQ, // =
-	NE, // <>
-	LT, // <
+enum OpType
+{
+	EQ,  // =
+	NE,  // <>
+	LT,  // <
 	LEQ, // <=
-	GT, // >
-	GEQ // >=
+	GT,  // >
+	GEQ  // >=
 };
 
-struct Predicate {
+struct Predicate
+{
 	std::string &propertyName;
 	OpType op;
 	Value &val;
 	Predicate(std::string &propertyName, OpType op, Value &val) : propertyName(propertyName), op(op), val(val) {}
 };
 
-struct Table {
+struct Table
+{
 	std::string &tableName;
 	std::string &primaryKey;
 	std::vector<Property> &properties;
@@ -155,7 +182,8 @@ struct Table {
 		: tableName(tableName), primaryKey(primaryKey), properties(properties) {}
 };
 
-struct Index {
+struct Index
+{
 	std::string indexName;
 	std::string tableName;
 	std::string propertyName;

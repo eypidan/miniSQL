@@ -7,7 +7,8 @@ void Interpreter::REPL::run()
 	isRunning = true;
 	
 	while (isRunning) {
-		std::cout << "MiniSQL> ";
+		std::cout << "\033[36mMiniSQL> ";
+		std::cout << "\033[37m";
 		buffer.clear();
 		isReading = true;
 
@@ -23,7 +24,10 @@ void Interpreter::REPL::run()
 				buffer << line << std::endl;
 				if (line.find(';') != std::string::npos)	// meet ';'
 					isReading = false;
-				else std::cout << "      -> ";
+				else {
+					std::cout << "\033[36m      -> ";
+					std::cout << "\033[37m";
+				}
 			}
 		}
 		
