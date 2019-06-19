@@ -120,7 +120,7 @@ namespace Interpreter {
 		// Create a number token with line and column index
 		else if (isdigit(*pos)) {
 			size_t foundEnd = currLine.substr(currColNum).find_first_not_of("0123456789.");
-			if (currLine.substr(currColNum, currColNum + foundEnd).find('.') != std::string::npos) {
+			if (currLine.substr(currColNum - 1, foundEnd + 1).find('.') != std::string::npos) {
 				float f = atof(currLine.substr(currColNum - 1, foundEnd + 1).c_str());
 				skipChars(foundEnd + 1);
 				return Token(f, currLineNum, currColNum);
