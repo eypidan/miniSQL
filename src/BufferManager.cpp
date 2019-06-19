@@ -2,7 +2,7 @@
 //
 // Created by eypidan on 6/4/2019.
 //
-#include "BufferManager.h"
+#include "../include/BufferManager.h"
 
 /*
  *  CatalogManager -> .struct file
@@ -64,6 +64,12 @@ FileNode *BufferManager::GetFile(const string FileName) {
     FN->fp = fp;
     this->FileServices.emplace_back(FN);
     return FN;
+}
+
+void BufferManager::globalSynchronize(){  //synchronize all the files in BufferManager's FileServices
+    for (auto FN : FileServices)
+        FN->synchronize();
+
 }
 
 void BufferManager::DeleteFile(const string FileName) {
