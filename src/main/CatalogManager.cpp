@@ -139,6 +139,7 @@ namespace CM {
 		memcpy(block->Data, &deleted, sizeof(bool));
 		block->dirty = true;
 		indexCache.erase(index.indexName);
+		indexPositionCache.erase(index.indexName);
 	}
 
 	Index* findIndexByName(std::string & indexName) {

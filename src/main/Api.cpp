@@ -101,6 +101,19 @@ namespace API {
 		try {
 			auto tablePtr = CM::findTable(tableName);
 			View result;
+			// reset char's size
+			for (int i = 0; i < predicates.size(); i++) {
+				if (predicates[i].val.getType() == BaseType::CHAR) {
+					for (int j = 0; j < tablePtr->properties.size(); j++) {
+						if (tablePtr->properties[j].name == predicates[i].propertyName) {
+							Type type = predicates[i].val.getType();
+							type.setType(BaseType::CHAR, tablePtr->properties[j].type.getSize());
+							predicates[i].val.setType(type);
+							break;
+						}
+					}
+				}
+			}
 			std::vector<string> propertyStrings;
 			if (properties.size() != 0) {
 				propertyStrings = properties;
@@ -111,7 +124,6 @@ namespace API {
 				}
 				result = RM::selectRecords(propertyStrings, *tablePtr, predicates);
 			}
-			bufferManager.globalSynchronize();
 			return SQLResult<std::pair<View, std::vector<std::string>>>(
 				std::make_shared<std::pair<View, std::vector<std::string>>>
 				(std::make_pair(result, propertyStrings)), clock() - start, true, std::string(""));
