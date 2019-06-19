@@ -149,7 +149,6 @@ void IndexManager::insertEntry(Value* newValue, int indexInRecord)
 		break;
 	}
 	}
-	treeFile->synchronize();
 }
 
 bool IndexManager::deleteEntry(Value* value)
@@ -176,7 +175,6 @@ bool IndexManager::deleteEntry(Value* value)
 		break;
 	}
 	}
-	treeFile->synchronize();
 	return re;
 }
 
@@ -247,7 +245,6 @@ void IndexManager::createNewIndex(Index& index)
 	memcpy(header->Data, &id, sizeof(id));
 
 	header->dirty = root->dirty = true;
-	fileNode->synchronize();
 }
 
 void IndexManager::dropIndex(Index& index)

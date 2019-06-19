@@ -20,6 +20,7 @@ namespace API {
 				table.tableName, table.primaryKey
 			);
 			auto indexCre = createIndex(*index);
+			bufferManager.globalSynchronize();
 			if (!indexCre.isSuccess) {
 				return SQLResult<void>(nullptr, clock() - start, false, indexCre.errorMessage);
 			}
@@ -35,6 +36,7 @@ namespace API {
 		try {
 			CM::dropTable(table);
 			RM::dropTable(table);
+			bufferManager.globalSynchronize();
 			return SQLResult<void>(nullptr, clock() - start, true, "");
 		}
 		catch (SQLException e) {
@@ -68,6 +70,7 @@ namespace API {
 					indexManager.insertEntry(&record->at(i), id);
 					return true; // go on
 				});
+			bufferManager.globalSynchronize();
 			return SQLResult<void>(nullptr, clock() - start, true, "");
 		}
 		catch (SQLException e) {
@@ -81,6 +84,7 @@ namespace API {
 			Index* index = CM::findIndexByName(indexName);
 			CM::dropIndex(*index);
 			IndexManager::dropIndex(*index);
+			bufferManager.globalSynchronize();
 			return SQLResult<void>(nullptr, clock() - start, true, "");
 		}
 		catch (SQLException e) {
@@ -107,7 +111,7 @@ namespace API {
 				}
 				result = RM::selectRecords(propertyStrings, *tablePtr, predicates);
 			}
-			
+			bufferManager.globalSynchronize();
 			return SQLResult<std::pair<View, std::vector<std::string>>>(
 				std::make_shared<std::pair<View, std::vector<std::string>>>
 				(std::make_pair(result, propertyStrings)), clock() - start, true, std::string(""));
@@ -127,6 +131,7 @@ namespace API {
 			int result = 0;
 			auto tablePtr = CM::findTable(tableName);
 			result = RM::deleteRecords(*tablePtr, predicates);
+			bufferManager.globalSynchronize();
 			return SQLResult<int>(
 				std::make_shared<int>(result), clock() - start, true, "");
 		}
@@ -151,6 +156,7 @@ namespace API {
 					IndexManager::dropIndex(*index);
 				}
 			}
+			bufferManager.globalSynchronize();
 			return SQLResult<void>(
 				nullptr, clock() - start, true, "");
 		}
@@ -177,6 +183,7 @@ namespace API {
 				}
 			}
 			RM::insertRecord(*table, values);
+			bufferManager.globalSynchronize();
 			return SQLResult<void>(
 				nullptr, clock() - start, true, "");
 		}
