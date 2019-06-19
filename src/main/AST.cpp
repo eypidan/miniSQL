@@ -165,7 +165,7 @@ namespace Interpreter {
 
 	void AST::SelectStatement::callAPI()
 	{
-		API::SQLResult<std::pair<View, Table>> res = API::select(properties, tableName, predicates);
+		API::SQLResult<std::pair<View, std::vector<std::string>>> res = API::select(properties, tableName, predicates);
 		if (res.isSuccess) {
 			View v = res.result->first;
 			int tupleCnt = v.size();
@@ -174,13 +174,13 @@ namespace Interpreter {
 				return;
 			}
 
-			Table t = res.result->second;
-			int attrCnt = t.properties.size();
+			std::vector<std::string> properties = res.result->second;
+			int attrCnt = properties.size();
 
 			// calculate the maxWidth of each column
 			std::vector<int> maxWidth(attrCnt, 0);
 			for (int i = 0; i < attrCnt; i++) {
-				maxWidth[i] = std::max(maxWidth[i], (int)strlen(t.properties[i].name));
+				maxWidth[i] = std::max(maxWidth[i], (int)properties[i].size());
 			}
 
 			for (int i = 0; i < tupleCnt; i++) {
@@ -213,7 +213,7 @@ namespace Interpreter {
 			for (int i = 0; i < attrCnt; i++) {
 				std::cout << "|"
 					<< std::setw(maxWidth[i] + 2)
-					<< t.properties[i].name;
+					<< properties[i];
 			}
 			std::cout << "|" << std::endl;
 
