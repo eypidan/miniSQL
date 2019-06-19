@@ -91,7 +91,7 @@ public:
 		setConst(val);
 	}
 	Value(const Value &that) : type(that.type) {
-		int size = that.type.getSize();
+		/*int size = that.type.getSize();
 		if (size == 0) {
 			size = 256;
 		}
@@ -101,7 +101,14 @@ public:
 		}
 		else {
 			memcpy(val, that.val, type.getSize());
-		}
+		}*/
+		val = that.val;
+	}
+
+	Value(const Value &that, int copyFlag) : type(that.type) {
+		int size = that.type.getSize();
+		val = new char[size];
+		memcpy(val, that.val, size);
 	}
 	template <typename T>
 	inline T *getAsType() const

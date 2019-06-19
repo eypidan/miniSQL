@@ -180,7 +180,7 @@ namespace RM {
 			for (int i = 0; i < properties.size(); i++) {
 				for (int j = 0; j < table.properties.size(); j++) {
 					if (table.properties[j].name == properties[i]) {
-						Value* value = new Value(record->at(j));
+						Value* value = new Value(record->at(j), 1);
 						
 						projection->push_back(*value);
 						break;
@@ -405,6 +405,7 @@ namespace RM {
 					// Find !!!
 					continue_ = consumer(block, offset, re);
 					if (!continue_) {
+						freeRecord(re);
 						return;
 					}
 				}

@@ -50,7 +50,7 @@ void testREPL() {
 }
 
 int main() {
-	//_CrtSetBreakAlloc(30788);
+	//_CrtSetBreakAlloc(745);
 	//testLexer();
 	//testParser();
 	testREPL();
