@@ -144,7 +144,7 @@ namespace Interpreter {
 
 	void DrawSymbol(int n, char c) {
 		for (int i = 0; i < n; i++) {
-			std::cout << c << std::endl;
+			std::cout << c;
 		}
 	}
 	
@@ -192,17 +192,20 @@ namespace Interpreter {
 					{
 					case BaseType::INT:
 						maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<int>())));
+						break;
 					case BaseType::FLOAT:
 						maxWidth[j] = std::max(maxWidth[j], getLength(*(val->getAsType<float>())));
+						break;
 					case BaseType::CHAR:
 						maxWidth[j] = std::max(maxWidth[j], getLength(val->getAsType<char>()));
+						break;
 					default:
 						break;
 					}
 				}
 			}
 
-			// Draw output table
+			// Draw output table header
 			for (int i = 0; i < attrCnt; i++) {
 				std::cout << "+";
 				DrawSymbol(maxWidth[i] + 2, '-');
@@ -212,6 +215,7 @@ namespace Interpreter {
 
 			for (int i = 0; i < attrCnt; i++) {
 				std::cout << "|"
+					<< std::internal
 					<< std::setw(maxWidth[i] + 2)
 					<< properties[i];
 			}
@@ -224,6 +228,7 @@ namespace Interpreter {
 			std::cout << "+";
 			std::cout << std::endl;
 
+			// draw output table content
 			for (int i = 0; i < tupleCnt; i++) {
 				for (int j = 0; j < attrCnt; j++) {
 					Value *val = &((*v[i])[j]);
@@ -234,23 +239,24 @@ namespace Interpreter {
 						std::cout << "|"
 							<< std::setw(maxWidth[j] + 2)
 							<< *(val->getAsType<int>());
+						break;
 					case BaseType::FLOAT:
 						std::cout << "|"
 							<< std::setw(maxWidth[j] + 2)
 							<< *(val->getAsType<float>());
+						break;
 					case BaseType::CHAR:
 						std::cout << "|"
 							<< std::setw(maxWidth[j] + 2)
 							<< val->getAsType<char>();
+						break;
 					default:
 						break;
 					}
-
 				}
+				std::cout << "|" << std::endl;
 			}
-
-			std::cout << "|" << std::endl;
-
+			
 			for (int i = 0; i < attrCnt; i++) {
 				std::cout << "+";
 				DrawSymbol(maxWidth[i] + 2, '-');
@@ -258,7 +264,7 @@ namespace Interpreter {
 			std::cout << "+";
 			std::cout << std::endl;
 
-			std::cout << tupleCnt << " rows in set (" << res.durationMS << " ms)";
+			std::cout << tupleCnt << " rows in set (" << res.durationMS << " ms)" << std::endl;
 		}
 		else {
 			std::cout << "Select fails: " + res.errorMessage << std::endl;
