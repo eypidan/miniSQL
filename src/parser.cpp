@@ -104,14 +104,14 @@ namespace Interpreter {
 				p->setPrimaryKey(pKey);
 			}
 			else {
-				std::string name = getIdentifier();
-				Type type = getAttributeType();
-				Property prpt(type, name, false);
+				std::string* name = new std::string(getIdentifier());
+				Type *type = new Type(getAttributeType());
+				Property *prpt = new Property(*type, *name, false);
 				if (meet(Keyword::UNIQUE)) {
-					prpt.isUnique = true;
+					prpt->isUnique = true;
 					itr++;
 				}
-				p->addProperty(prpt);
+				p->addProperty(*prpt);
 			}
 			first = false;
 		} while (meet(Symbol::COMMA));
@@ -348,15 +348,15 @@ namespace Interpreter {
 		else if (meet(Keyword::CHAR)) {
 			itr++;
 			expect(Symbol::LBRACKET);
-			int size = getInteger();
-			if (size > 255) {
+			int* size = new int(getInteger());
+			if (*size > 255) {
 				raiseException("Char size should not exceed 255.");
 			}
-			else if (size < 1) {
+			else if (*size < 1) {
 				raiseException("Char size should not be smaller than 1.");
 			}
 			expect(Symbol::RBRACKET);
-			return Type(BaseType::CHAR, size);
+			return Type(BaseType::CHAR, *size);
 		}
 		else {
 			raiseException("Expecting \'int\', \'float\' or \'char\'.");
@@ -365,50 +365,50 @@ namespace Interpreter {
 
 	Predicate Parser::getPredicate()
 	{
-		std::string propertyName = getIdentifier();
-		OpType op;
+		std::string* propertyName = new std::string(getIdentifier());
+		OpType *op = new OpType;
 		if (meet(Symbol::EQ)) {
-			op = OpType::EQ;
+			*op = OpType::EQ;
 		}
 		else if (meet(Symbol::NEQ)) {
-			op = OpType::NE;
+			*op = OpType::NE;
 		}
 		else if (meet(Symbol::LT)) {
-			op = OpType::LT;
+			*op = OpType::LT;
 		}
 		else if (meet(Symbol::LEQ)) {
-			op = OpType::LEQ;
+			*op = OpType::LEQ;
 		}
 		else if (meet(Symbol::GT)) {
-			op = OpType::GT;
+			*op = OpType::GT;
 		}
 		else if (meet(Symbol::GEQ)) {
-			op = OpType::GEQ;
+			*op = OpType::GEQ;
 		}
 		else raiseException("Expecting '=', '<>', '<', '<=', '>', '>='");
 		itr++;
-		Value val = getValue();
-		return Predicate(propertyName, op, val);
+		Value *val = new Value(getValue());
+		return Predicate(*propertyName, *op, *val);
 	}
 
 	Value Parser::getValue()
 	{
 		if (itr != tokens.end()) {
 			if (itr->getType() == TokenType::INTEGER) {
-				Type type(BaseType::INT);
-				int val = (itr++)->getValue().intvalue;
-				return Value(type, &val);
+				Type* type = new Type(BaseType::INT);
+				int* val = new int((itr++)->getValue().intvalue);
+				return Value(*type, val);
 			}
 			else if (itr->getType() == TokenType::FLOAT) {
-				Type type(BaseType::FLOAT);
-				float val = (itr++)->getValue().fvalue;
-				return Value(type, &val);
+				Type* type = new Type(BaseType::FLOAT);
+				float* val = new float((itr++)->getValue().fvalue);
+				return Value(*type, val);
 			}
 			else if (itr->getType() == TokenType::STRING) {
-				Type type(BaseType::CHAR);
-				std::string val = (itr++)->getValue().strvalue;
-				if (val.length() >= 1 && val.length() <= 255) {
-					return Value(type, val.c_str());
+				Type* type = new Type(BaseType::CHAR);
+				std::string* val = new std::string((itr++)->getValue().strvalue);
+				if (val->length() >= 1 && val->length() <= 255) {
+					return Value(*type, val->c_str());
 				}
 				else {
 					raiseException("Invalid length of string literal.");
